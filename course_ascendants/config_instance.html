@@ -1,0 +1,54 @@
+<?php // $Id: config_instance.html,v 1.4 2012-03-01 19:16:49 vf Exp $
+/**
+ * Instance configuration HTML template for this block.
+ *
+ * @author Valery Fremaux
+ * @version $Id: config_instance.html,v 1.4 2012-03-01 19:16:49 vf Exp $
+ * @package block_course_ascendants
+ * @todo Perhaps include a hook so the module can add config info?
+ **/
+
+    global $CFG, $COURSE;
+
+    // Module options
+
+?>
+
+<div class="centerpara">
+    <table cellpadding="5px" align="center">
+        <tr>
+            <td align="right"><b><?php print_string('showcategories', 'block_course_ascendants') ?>:</b>&nbsp;</td>
+            <td align="left">
+            	<?php choose_from_menu_yesno('showcategories', @$this->config->showcategories); ?>
+            </td>
+        </tr>
+        <tr>
+            <td align="right"><b><?php print_string('coursescopestartcategory', 'block_course_ascendants') ?>:</b>&nbsp;</td>
+            <td align="left">
+            	<?php
+            		$catoptions = get_records_menu('course_categories', '', '', 'sortorder', 'id,name'); 
+            		choose_from_menu($catoptions, 'coursescopestartcategory', @$this->config->coursescopestartcategory); 
+            	?>
+            </td>
+        </tr>
+		<tr valign="top">
+		    <td align="right"><b><?php print_string('stringlimit', 'block_course_ascendants') ?></b>:</td>
+		    <td>
+		    	<input type="text" name="stringlimit" size="4" maxlength="3" value="<?php echo 0 + @$this->config->stringlimit ?>" />
+		    </td>
+		    <td>
+		    <?php print_string('configstringlimit', 'block_course_ascendants') ?>
+		    </td>
+		</tr>
+		<tr valign="top">
+		    <td align="right"><b><?php print_string('catstringfilter', 'block_course_ascendants') ?></b>:</td>
+		    <td>
+		    	<input type="text" name="catstringfilter" size="40" value="<?php echo @$this->config->catstringfilter ?>" />
+		    </td>
+		    <td>
+		    <?php print_string('configcatstringfilter', 'block_course_ascendants') ?>
+		    </td>
+		</tr>
+    </table>
+  <p><span class="button"><input type="submit" value="<?php print_string('savechanges'); ?>" /></span></p>
+</div>
