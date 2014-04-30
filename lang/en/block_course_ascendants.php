@@ -29,13 +29,18 @@ $string['configshowcategories'] = 'Show categories';
 $string['title'] = 'Available subcourses';
 $string['uncheckadvice'] = 'Care that binding out a metacourse will probably loose student data';
 $string['openclosemodules_help'] = '## Access to course ascendants
-
 ### Opening, closing parent courses
 
-Parent courses are metacourses that inherit enrollements from this course.
+Parent courses are metacourses that inherit enrolments from this course.
 
-When opening (assigning) an ascendant, you will linnk this course to the specified metacourse, thus enrilling current users and giving them access to the metacourse content.
+When opening (assigning) an ascendant, you will link this course to the
+specified metacourse, thus enroling current users and giving them access to the
+metacourse content.
 
-When closing a module (unassigning), you will unbind enrollments. Your students will not be any more capable to enter the course, but their production (documents, data) remain stored within the course data. If you open again the access to the module, your users will recover the course in the same state they left it.';
+When closing a module (unassigning), you will unbind enrolments . Your students
+will not be any more capable to enter the course, but their production
+(documents, data) will remain stored within the course data. If you open again
+the access to the module, your users will recover the course in the same state
+they left it.';
 
 

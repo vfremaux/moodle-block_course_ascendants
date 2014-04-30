@@ -1,6 +1,6 @@
 <?php //$Id: block_course_ascendants.php,v 1.8 2012-07-18 16:09:58 vf Exp $
 
-class block_course_ascendants extends block_list {
+class block_course_ascendants extends block_base {
 
     function init() {
         $this->title = get_string('title', 'block_course_ascendants') ;
@@ -29,6 +29,11 @@ class block_course_ascendants extends block_list {
         if ($this->content !== NULL) {
             return $this->content;
         }
+        
+        if (!isset($this->config)){
+        	$this->config = new StdClass();
+        }
+
         if (!isset($this->config->showcategories)){
         	$this->config->showcategories = false;
         }
@@ -39,8 +44,6 @@ class block_course_ascendants extends block_list {
         $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories);
 
         $this->content = new stdClass;
-        $this->content->items = array();
-        $this->content->icons = array();
         $this->content->footer = '';
 
 		if ($categories){
@@ -52,21 +55,26 @@ class block_course_ascendants extends block_list {
 	    				preg_match("/$pattern/", $filteredprevcat, $matches);
 	    				$filteredprevcat = $matches[0];
 	    			}
-	    			$this->content->icons[] = '';
-	    			$this->content->items[] = "<b>$filteredprevcat</b>";
+	    			$this->content->text .= "<div class=\"category\"><b>$filteredprevcat</b></div>";
 	    		}
 				if (!empty($cat->courses)){
+					$this->content->text .= '<div clas="courses">';
 		            foreach ($cat->courses as $ascendant) {
-	                    $icon  = '';
-	                    $this->content->icons[] = $icon;
+						$this->content->text .= '<div class="coursebox">';
+						$this->content->text .= '<div class="info">';
+						$this->content->text .= '<div class="name">';
 	                    if (!empty($this->config->stringlimit)){
 		                    $fullname = shorten_text($ascendant->fullname, $this->config->stringlimit);
 		                } else {
 		                    $fullname = $ascendant->fullname;
 		                }
-	                    $this->content->items[] = "<a title=\"" .s($ascendant->fullname).
+	                    $this->content->text .= "<a title=\"" .s($ascendant->fullname).
 	                        "\" href=\"{$CFG->wwwroot}/course/view.php?id={$ascendant->id}\">{$fullname}</a>";
+						$this->content->text .= '</div>';
+						$this->content->text .= '</div>';
+						$this->content->text .= '</div>';
 		            }
+					$this->content->text .= '</div>';
 		        }
 	        }
 	    }
@@ -142,19 +150,25 @@ class block_course_ascendants extends block_list {
 	/**
 	* get all potential or effective ascendants
 	* an ascendant course is a course having a metacourse enrolment
-	* instance bound to us, either it is active or not. 
+	* instance bound to us, either it is active or not or no enrol instance at all (but could have). 
 	*/
 	function get_ascendants($catid, $seeunbound){
 		global $COURSE, $DB;
 		
 		// getting all meta enrols that point me
 		
-		$invisibleclause =  ($seeunbound) ? '' : ' AND status = 0 ' ;
+		if ($seeunbound){
+			$invisibleclause =  '((e.customint1 <> ? ) OR (e.customint1 = ? AND status = 1) OR e.id IS NULL)';
+			$params = array($COURSE->id, $COURSE->id);
+		} else {
+			$invisibleclause = ' e.customint1 = ? AND status = 0 ' ;
+			$params = array($COURSE->id);
+		}
 		
 		$catclause = ($catid) ? " c.category = $catid AND " : '' ;
 		
 		$sql = "
-			SELECT
+			SELECT DISTINCT
 				c.id,
 				c.category,
 				c.shortname,
@@ -162,15 +176,17 @@ class block_course_ascendants extends block_list {
 				c.sortorder,
 				c.visible
 			FROM
-			    {course} c,
+			    {course} c
+			LEFT JOIN
 			    {enrol} e
+			ON
+				c.id = e.courseid
 			WHERE
-				c.id = e.courseid AND
 				$catclause				
-				e.customint1 = ?
 				$invisibleclause
 		";
-		return $DB->get_records_sql($sql, array($COURSE->id));						
+		// echo $sql;
+		return $DB->get_records_sql($sql, $params);						
 	}
 
     /**
@@ -214,5 +230,3 @@ class block_course_ascendants extends block_list {
 		}
     }
 }
-
-?>

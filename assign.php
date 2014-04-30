@@ -22,6 +22,7 @@
 
 /// check if course group must be created
 
+	if (!isset($theBlock->config)) $theBlock->config = new StdClass();
 	if (!isset($theBlock->config->createcoursegroup)) $theBlock->config->createcoursegroup = false;
 	if (!isset($theBlock->config->coursegroupnamebase)) $theBlock->config->coursegroupnamebase = 0;
 	if (!isset($theBlock->config->coursegroupnamefilter)) $theBlock->config->coursegroupnamefilter = '';
@@ -112,6 +113,7 @@
 
 	if($ascendants = $theBlock->get_ascendants(0, false)){
 		$ascendants = array_keys($ascendants);
+		$data = new StdClass();
 		foreach($ascendants as $asc){
 			$key = 'c'.$asc;
 			$data->$key = 1;

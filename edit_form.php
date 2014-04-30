@@ -41,15 +41,18 @@ class block_course_ascendants_edit_form extends block_edit_form {
         $mform->addHelpButton('config_coursescopestartcategory', 'configcoursescopestartcategory', 'block_course_ascendants');
 
         $mform->addElement('text', 'config_stringlimit', get_string('configstringlimit', 'block_course_ascendants'), array('size' => 4, 'maxlength' => 3));
+        $mform->setType('config_stringlimit', PARAM_INT);
         $mform->addHelpButton('config_stringlimit', 'configstringlimit', 'block_course_ascendants');
 
         $mform->addElement('text', 'config_catstringfilter', get_string('configcatstringfilter', 'block_course_ascendants'), array('size' => 40, 'maxlength' => 80));
+        $mform->setType('config_catstringfilter', PARAM_TEXT);
         $mform->addHelpButton('config_catstringfilter', 'configcatstringfilter', 'block_course_ascendants');
 
         $mform->addElement('checkbox', 'config_createcoursegroup', get_string('configcreatecoursegroup', 'block_course_ascendants'));
         $mform->addHelpButton('config_createcoursegroup', 'configcreatecoursegroup', 'block_course_ascendants');
 
         $mform->addElement('text', 'config_coursegroupname', get_string('configcoursegroupname', 'block_course_ascendants'), array('size' => 40));
+        $mform->setType('config_coursegroupname', PARAM_TEXT);
         $mform->addHelpButton('config_coursegroupname', 'configcoursegroupname', 'block_course_ascendants');
 
 		switch ($CFG->block_ascendants_coursegroupnamebase){
