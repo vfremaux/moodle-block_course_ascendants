@@ -18,7 +18,7 @@
  * Version details
  *
  * @package    block
- * @subpackage section_links
+ * @subpackage course_ascendants
  * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Moodle 1.9 version
-$plugin->version   = 2012022000;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011112900;        // Requires this Moodle version
-$plugin->release = '2.2.0 (Build)';
+$plugin->version   = 2014043000;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2013040500;        // Requires this Moodle version
+$plugin->release = '2.5.0 (Build 2014043000)';
 $plugin->component = 'block_course_ascendants'; // Full name of the plugin (used for diagnostics)
