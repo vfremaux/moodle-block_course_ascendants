@@ -84,8 +84,7 @@ class block_course_ascendants extends block_list {
     	static $level = 0;
 
     	if ($catstart != 0 && $level == 0){
-    		$cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-    		if (!$cat->visible && !$seeinvisible) continue;
+    		$cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name');
 	        if ($ascendants = $this->get_ascendants($catstart, $seeunbound)){
 	        	$cat->courses = array();
 	        	foreach($ascendants as $asc){
@@ -102,17 +101,12 @@ class block_course_ascendants extends block_list {
     	if ($catlevel = $DB->get_records_select('course_categories', "parent = ? ", array($catstart), 'sortorder', 'id,name,visible')){
     		foreach($catlevel as $cat){
     			$catcontext = context_coursecat::instance($cat->id);
-    			if ((!$cat->visible && !has_capability('moodle/category:showhiddencategories', $catcontext)) && !$seeinvisible){
-    				continue;
-    			}
-
+    			
 		        if ($ascendants = $this->get_ascendants($cat->id, $seeunbound)){
 		        	$cat->courses = array();
 		        	foreach($ascendants as $asc){
 		                $context = context_course::instance($asc->id);
-		                if ($asc->visible || has_capability('moodle/course:viewhiddencourses', $context) || $seeinvisible){
-		                	$cat->courses[$asc->id] = $asc;
-		                }
+		                $cat->courses[$asc->id] = $asc;
 	                }
 	            }
     			$categories[] = $cat;
