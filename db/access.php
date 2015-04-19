@@ -40,6 +40,15 @@ $capabilities = array(
         )
     ),
 
+    'block/course_ascendants:myaddinstance' => array(
+
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'legacy' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+
     'block/course_ascendants:configure' => array(
 
         'captype' => 'read',

@@ -32,7 +32,11 @@ class Assign_Form extends moodleform{
 		$mform = $this->_form;
 
 		$mform->addElement('hidden', 'course', $COURSE->id);
+		$mform->setType('course', PARAM_INT);
+
 		$mform->addElement('hidden', 'id', $this->blockinstance->instance->id);
+		$mform->setType('id', PARAM_INT);
+
 		foreach($courseoptions as $cc => $cs){
 			$mform->addElement('header', 'h'.$cc, format_string($cc));
 			foreach($cs as $cid => $name){
@@ -51,6 +55,6 @@ class Assign_Form extends moodleform{
 		$this->add_action_buttons(true);
 	}
 
-	function validation($data){
+	function validation($data, $files = null){
 	}
 }

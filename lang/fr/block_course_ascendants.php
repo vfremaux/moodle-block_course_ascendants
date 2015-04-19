@@ -2,6 +2,7 @@
 
 $string['ascendantsaccess'] = 'Accès aux modules liés';
 $string['blockname'] = 'Cours ascendants';
+$string['createcoursegroup'] = 'Créer le groupe de cours';
 $string['configcatstringfilter'] = 'Filtre sur les catégories';
 $string['configcatstringfilter_help'] = 'Une expression régulière permettant de ne garder qu\'une portion du nom de catégorie';
 $string['configcoursegroupname'] = 'Base du nom pour groupe de cours';
