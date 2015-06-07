@@ -1,4 +1,7 @@
 <?php
+$string['course_ascendants:addinstance'] = 'Peut ajouter un bloc au cours';
+$string['course_ascendants:myaddinstance'] = 'Peut ajouter un bloc à la page personnalisée';
+$string['course_ascendants:configure'] = 'Peut configurer';
 
 $string['ascendantsaccess'] = 'Accès aux modules liés';
 $string['blockname'] = 'Cours ascendants';
@@ -9,8 +12,6 @@ $string['configcoursegroupname'] = 'Base du nom pour groupe de cours';
 $string['configcoursegroupname_help'] = 'Ce paramètre permet de sélectionner la donnée de base à partir de laquelle le nom du groupe de cours est créé';
 $string['configcreatecoursegroup_help'] = 'Un groupe de cours est un groupe qui prend toutes les personnes présentes du cours';
 $string['configstringlimit_help'] = 'Fixe une limite maximale pour la longueur des labels de liens. Laisser à 0 pour aucune limite.';
-$string['course_ascendants:canaddto'] = 'Peut ajouter au cours';
-$string['course_ascendants:configure'] = 'Peut configurer';
 $string['coursegroupcreated'] = 'La création automatique de groupe de cours est active et aucun groupe n\'était détecté. Le groupe de cours est créé.';
 $string['coursegroupname'] = 'Nom du groupe de cours';
 $string['coursegroupnamefilter'] = 'Filtre (regexp) pour nom de cours';
