@@ -3,3 +3,36 @@ select.selcourses{
     min-width:250px;
     width:250px;
 }
+
+.course-ascendant-coursebox{
+    min-height:30px;
+}
+
+.course-ascendants.shadow{
+    opacity:0.5;
+    moz-opacity:0.5;
+    -ms-filter:”alpha(opacity=50)”;
+}
+
+.block_course_ascendants .coursebox .info .name {
+    float:none;
+}
+
+.coursebox .info .name a.cmd {
+    background:none;
+    padding-left:5px;
+    display:inline;
+}
+
+.coursebox .info .name a.coursename {
+    display:inline;
+}
+
+.block-ascendants.course-description{
+    overflow:auto;
+}
+
+.block-ascendants-module-completion {
+    float:right;
+    clear:both;
+}

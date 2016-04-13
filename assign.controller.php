@@ -27,10 +27,21 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script this way');
 
 require_once($CFG->dirroot.'/enrol/meta/locallib.php');
 require_once($CFG->dirroot.'/enrol/meta/lib.php');
+require_once($CFG->dirroot.'/blocks/course_ascendants/listlib.php');
 
 if ($data) {
     $dataarr = (array)$data;
     $inputdata = preg_grep('/^c\d+/', array_keys($dataarr));
+    $allmetas = array();
+
+    // Prepare next order for insertion
+    $lastorder = list_last_order($id);
+    if (is_null($lastorder)) {
+        $neworder = 0;
+    } else {
+        $neworder = $lastorder + 1;
+    }
+
     // We know now we got them all (radio buttons).
     if (!empty($inputdata)) {
         foreach ($inputdata as $cid) {
@@ -39,18 +50,45 @@ if ($data) {
             if ($enrol = $DB->get_record('enrol', array('enrol' => 'meta', 'customint1' => $data->course, 'courseid' => $metaid))) {
                 $enrol->status = !$dataarr[$cid];
                 $DB->update_record('enrol', $enrol);
+                if (!$dataarr[$cid]) {
+                    // Not any more an attached module
+                    if ($DB->record_exists('block_course_ascendants', array('blockid' => $id, 'courseid' => $metaid))) {
+                        list_remove($id, $metaid);
+                    }
+                } else {
+
+                    $localrec = new StdClass();
+                    $localrec->blockid = $id;
+                    $localrec->courseid = $metaid;
+                    $localrec->sortorder = $neworder;
+                    if (!$DB->record_exists('block_course_ascendants', array('blockid' => $id, 'courseid' => $metaid))) {
+                        $DB->insert_record('block_course_ascendants', $localrec);
+                        $neworder++;
+                    }
+                }
             } else {
                 // If must be attached, make a new meta enrol record and add it to the remote metacourse.
                 if ($dataarr[$cid] == 1) {
                     $enrol = new enrol_meta_plugin();
                     $metacourse = $DB->get_record('course', array('id' => $metaid));
                     $enrol->add_instance($metacourse, array('customint1' => $data->course));
+
+                    $localrec = new StdClass();
+                    $localrec->blockid = $id;
+                    $localrec->courseid = $metaid;
+                    $localrec->sortorder = $neworder;
+                    if (!$DB->record_exists('block_course_ascendants', array('blockid' => $id, 'courseid' => $metaid))) {
+                        $DB->insert_record('block_course_ascendants', $localrec);
+                        $neworder++;
+                    }
                 }
             }
 
             if ($dataarr[$cid] == 1) {
-                $allmetas[] = $metaid; // For further group pushing.
+                // For further group pushing.
+                $allmetas[] = $metaid;
             }
+
             // Sync all users in open metacourses.
             enrol_meta_sync($metaid);
         }

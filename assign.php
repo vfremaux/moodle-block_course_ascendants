@@ -66,13 +66,16 @@ if (empty($blockinstance->config->coursegroupname)) {
         case 0 : 
             $coursebase = $COURSE->fullname;
             break;
-        case 1 : 
+
+        case 1:
             $coursebase = $COURSE->shortname;
             break;
-        case 2 : 
+
+        case 2:
             $coursebase = $COURSE->idnumber;
             break;
     }
+
     if ($blockinstance->config->coursegroupnamefilter) {
         preg_match('/'.$blockinstance->config->coursegroupnamefilter.'/', $coursebase, $matches);
         if (isset($matches[1])) {
@@ -109,7 +112,7 @@ if ($coursegroup) {
     $context = context_course::instance($COURSE->id);
     if ($directassignments  = $DB->get_records_select('role_assignments', " contextid = ? " , array($context->id), 'id', 'DISTINCT userid,userid')) {
         foreach ($directassignments as $assign) {
-            // add all missing members
+            // Add all missing members.
             if (!$DB->record_exists('groups_members', array('groupid' => $coursegroup->id, 'userid' => $assign->userid))) {
                 $groupmember = new StdClass;
                 $groupmember->groupid = $coursegroup->id;
@@ -121,7 +124,7 @@ if ($coursegroup) {
     }
 }
 
-// get data
+// Get data.
 
 $url = new moodle_url('/blocks/course_ascendants/assign.php', array('course' => $courseid, 'id' => $id));
 
