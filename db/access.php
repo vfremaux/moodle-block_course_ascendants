@@ -29,18 +29,11 @@
 //   $capabilities
 //
 
+defined('MOODLE_INTERNAL') || die();
+
 $capabilities = array(
 
     'block/course_ascendants:addinstance' => array(
-
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-
-    'block/course_ascendants:myaddinstance' => array(
 
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
