@@ -29,6 +29,8 @@
 //   $capabilities
 //
 
+defined('MOODLE_INTERNAL') || die();
+
 $capabilities = array(
 
     'block/course_ascendants:addinstance' => array(

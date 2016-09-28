@@ -15,12 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Assign submodules to current course GUI
+ * Block instance editing form.
  *
- * @package    block
- * @subpackage course_ascendants
- * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
+ * @package    block_course_ascendants
+ * @category   blocks
+ * @author Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * Assign submodules to current course GUI
  */
 
 require('../../config.php');
