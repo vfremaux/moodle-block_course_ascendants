@@ -14,16 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * controller for course assign
- *
- * @package    block
- * @subpackage course_ascendants
- * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+defined('MOODLE_INTERNAL') || die();
 
-if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script this way');
+/**
+ * Block instance editing form.
+ *
+ * @package    block_course_ascendants
+ * @category   blocks
+ * @author     Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * controller for course assignation
+ */
 
 require_once($CFG->dirroot.'/enrol/meta/locallib.php');
 require_once($CFG->dirroot.'/enrol/meta/lib.php');

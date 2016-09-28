@@ -14,13 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * the block master class
- *
- * @package    block
- * @subpackage course_ascendants
+ * @package    block_course_ascendants
+ * @category   blocks
  * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * the block course ascendants
  */
 
 require_once($CFG->dirroot.'/blocks/course_ascendants/listlib.php');
@@ -131,6 +133,7 @@ class block_course_ascendants extends block_base {
         } else {
             // Prescan categories, sort them by local order and finally output them.
             if ($categories) {
+                $flatcourses = array();
                 foreach ($categories as $cat) {
                     if (!empty($cat->courses)) {
                         foreach ($cat->courses as $cid => $ascendant) {
