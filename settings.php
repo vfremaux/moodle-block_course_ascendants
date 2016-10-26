@@ -16,6 +16,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * @package    block_course_ascendants
+ * @category   blocks
+ * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 $namebaseoptions[0] = get_string('fullname');
 $namebaseoptions[1] = get_string('shortname');
 $namebaseoptions[2] = get_string('idnumber');
