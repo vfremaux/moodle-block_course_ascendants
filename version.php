@@ -15,21 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Version details.
  *
- * @package    block_course_ascendants
- * @category   blocks
- * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     block_course_ascendants
+ * @category    blocks
+ * @author      Valery Fremaux <valery.fremaux@gmail.com>
+ * @copyright   2012 onwards Valery Fremaux (http://www.mylearningfactory.com)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2015111414;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013111800;        // Requires this Moodle version
-$plugin->release = '2.7.0 (Build 2015101601)';
+$plugin->requires  = 2014110400;        // Requires this Moodle version
+$plugin->release = '2.8.0 (Build 2015111414)';
 $plugin->maturity   = MATURITY_RC;      // The current plugin version (Date: YYYYMMDDXX)
 $plugin->component = 'block_course_ascendants'; // Full name of the plugin (used for diagnostics)
 
 // Non moodle attributes.
-$plugin->codeincrement = '2.7.0000';
+$plugin->codeincrement = '2.8.0000';
