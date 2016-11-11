@@ -28,7 +28,7 @@
 require('../../config.php');
 require_once($CFG->dirroot.'/blocks/course_ascendants/assign_form.php');
 
-$courseid = required_param('course', PARAM_INT) ; // The course id.
+$courseid = required_param('course', PARAM_INT); // The course id.
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourseid');
@@ -65,7 +65,7 @@ if (!isset($blockinstance->config->coursegroupnamefilter)) {
 
 if (empty($blockinstance->config->coursegroupname)) {
     switch($blockinstance->config->coursegroupnamebase) {
-        case 0 : 
+        case 0 :
             $coursebase = $COURSE->fullname;
             break;
 
@@ -105,14 +105,16 @@ if (!$coursegroup) {
     }
 }
 
-// If finally group exists or come to exist, sync members
+// If finally group exists or come to exist, sync members.
 
 // TODO : integrate new difference of enrolled and assigned users...
 
 if ($coursegroup) {
-    // get all users with direct assignment
+    // Get all users with direct assignment.
     $context = context_course::instance($COURSE->id);
-    if ($directassignments  = $DB->get_records_select('role_assignments', " contextid = ? " , array($context->id), 'id', 'DISTINCT userid,userid')) {
+    $select = " contextid = ? ";
+    $fields = 'DISTINCT userid,userid';
+    if ($directassignments  = $DB->get_records_select('role_assignments', $select, array($context->id), 'id', $fields)) {
         foreach ($directassignments as $assign) {
             // Add all missing members.
             if (!$DB->record_exists('groups_members', array('groupid' => $coursegroup->id, 'userid' => $assign->userid))) {
