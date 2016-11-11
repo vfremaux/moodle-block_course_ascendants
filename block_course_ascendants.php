@@ -53,7 +53,9 @@ class block_course_ascendants extends block_base {
      */
     public function instance_config_save($data, $nolongerused = false) {
 
-        if (!isset($data->showdescription)) $data->showdescription = 0;
+        if (!isset($data->showdescription)) {
+            $data->showdescription = 0;
+        }
 
         parent::instance_config_save($data, false);
     }
@@ -76,16 +78,16 @@ class block_course_ascendants extends block_base {
         $coursecontext = context_course::instance($COURSE->id);
 
         if (@$this->config->arrangeby == 1) {
-            // Execute block micro controller if arranging by local plan
+            // Execute block micro controller if arranging by local plan.
             if ($what = optional_param('what', '', PARAM_TEXT)) {
                 if ($what == 'asc-down') {
                     $downcourse = required_param('downcourse', PARAM_INT);
-                    $blockid =  required_param('blockid', PARAM_INT);
+                    $blockid = required_param('blockid', PARAM_INT);
                     list_down($blockid, $downcourse);
                 }
                 if ($what == 'asc-up') {
                     $upcourse = required_param('upcourse', PARAM_INT);
-                    $blockid =  required_param('blockid', PARAM_INT);
+                    $blockid = required_param('blockid', PARAM_INT);
                     list_up($blockid, $upcourse);
                 }
             }
@@ -172,7 +174,9 @@ class block_course_ascendants extends block_base {
 
         if ($catstart != 0 && $level == 0) {
             $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            if (!$cat->visible && !$seeinvisible) continue;
+            if (!$cat->visible && !$seeinvisible) {
+                continue;
+            }
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {
                 $cat->courses = array();
                 foreach ($ascendants as $asc) {
@@ -189,7 +193,7 @@ class block_course_ascendants extends block_base {
         $select = "parent = ? ";
         $fields = 'id,name,visible';
         if ($catlevel = $DB->get_records_select('course_categories', $select, array($catstart), 'sortorder', $fields)) {
-            foreach($catlevel as $cat) {
+            foreach ($catlevel as $cat) {
                 $catcontext = context_coursecat::instance($cat->id);
                 if ((!$cat->visible &&
                         !has_capability('moodle/category:viewhiddencategories', $catcontext)) &&
@@ -217,7 +221,7 @@ class block_course_ascendants extends block_base {
     /**
      * get all potential or effective ascendants
      * an ascendant course is a course having a metacourse enrolment
-     * instance bound to us, either it is active or not or no enrol instance at all (but could have). 
+     * instance bound to us, either it is active or not or no enrol instance at all (but could have).
      * @param int $catid the root category where to search
      * @param bool $seeunbound
      */
@@ -225,10 +229,12 @@ class block_course_ascendants extends block_base {
         global $COURSE, $DB, $USER;
 
         // Getting all meta enrols that point me.
-        if (is_null($courseid)) $courseid = $COURSE->id;
+        if (is_null($courseid)) {
+            $courseid = $COURSE->id;
+        }
 
         if ($seeunbound) {
-            $invisibleclause =  '((e.customint1 <> ? ) OR (e.customint1 = ? AND status = 1) OR e.id IS NULL)';
+            $invisibleclause = '((e.customint1 <> ? ) OR (e.customint1 = ? AND status = 1) OR e.id IS NULL)';
             $params = array($this->instance->id, $USER->id, $courseid, $courseid);
         } else {
             $invisibleclause = ' e.customint1 = ? AND status = 0 ';
