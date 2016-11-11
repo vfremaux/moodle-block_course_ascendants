@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Block instance editing form.
  *
@@ -24,18 +22,20 @@ defined('MOODLE_INTERNAL') || die();
  * @author Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir.'/formslib.php');
 
 class Assign_Form extends moodleform {
 
-    var $blockinstance;
+    protected $blockinstance;
 
-    function __construct($action, &$theBlock) {
-        $this->blockinstance = $theBlock;
+    public function __construct($action, &$theblock) {
+        $this->blockinstance = $theblock;
         parent::__construct($action);
     }
 
-    function definition() {
+    public function definition() {
         global $COURSE, $DB;
 
         // Take local as default.
@@ -70,9 +70,13 @@ class Assign_Form extends moodleform {
             foreach ($cs as $cid => $name) {
                 $notifytext = get_string('uncheckadvice', 'block_course_ascendants');
                 $radioarray = array();
-                $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', get_string('open', 'block_course_ascendants'), 1, array('onchange' => "notifyeffect('$notifytext')"));
-                $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', get_string('close', 'block_course_ascendants'), 0, array('onchange' => "notifyeffect('$notifytext')"));
-                $mform->addGroup($radioarray, 'radioar', format_string($name), array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'), false);
+                $label = get_string('open', 'block_course_ascendants');
+                $attrs = array('onchange' => "notifyeffect('$notifytext')");
+                $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
+                $label = get_string('close', 'block_course_ascendants');
+                $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 0, $attrs);
+                $padding = array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+                $mform->addGroup($radioarray, 'radioar', format_string($name), $padding, false);
             }
         }
 
@@ -87,7 +91,7 @@ class Assign_Form extends moodleform {
         $this->add_action_buttons(true);
     }
 
-    function validation($data, $files = null) {
+    public function validation($data, $files = null) {
     }
 }
 
