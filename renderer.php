@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Version details
  *
@@ -24,11 +22,12 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 class block_course_ascendants_renderer extends plugin_renderer_base {
 
     function courserow($course, $theblock, $coursecount = 0) {
-        global $OUTPUT, $COURSE, $USER;
+        global $COURSE, $USER;
 
         $coursecontext = context_course::instance($COURSE->id);
         $blockcontext = context_block::instance($theblock->instance->id);
@@ -49,17 +48,24 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
             if (has_capability('block/course_ascendants:configure', $coursecontext)) {
                 if ($course->localorder > 0) {
                     $upurl = new moodle_url(me());
-                    $upurl->params(array('what' => 'asc-down', 'downcourse' => $course->id, 'blockid' => $theblock->instance->id, 'upcourse' => null));
-                    $str .= ' <a class="cmd" href="'.$upurl.'"><img src="'.$OUTPUT->pix_url('t/up').'"></a>';
+                    $upurl->params(array('what' => 'asc-down',
+                                         'downcourse' => $course->id,
+                                         'blockid' => $theblock->instance->id,
+                                         'upcourse' => null));
+                    $str .= ' <a class="cmd" href="'.$upurl.'"><img src="'.$this->output->pix_url('t/up').'"></a>';
                 } else {
-                    $str .= ' <span class="course-ascendants shadow"><img src="'.$OUTPUT->pix_url('t/up').'"></span>';
+                    $str .= ' <span class="course-ascendants shadow"><img src="'.$this->output->pix_url('t/up').'"></span>';
                 }
                 if ($course->localorder < $coursecount - 1) {
                     $downurl = new moodle_url(me());
-                    $downurl->params(array('what' => 'asc-up', 'upcourse' => $course->id, 'blockid' => $theblock->instance->id, 'downcourse' => null));
-                    $str .= ' <a class="cmd" href="'.$downurl.'"><img src="'.$OUTPUT->pix_url('t/down').'"></a>';
+                    $params = array('what' => 'asc-up',
+                                    'upcourse' => $course->id,
+                                    'blockid' => $theblock->instance->id,
+                                    'downcourse' => null);
+                    $downurl->params($params);
+                    $str .= ' <a class="cmd" href="'.$downurl.'"><img src="'.$this->output->pix_url('t/down').'"></a>';
                 } else {
-                    $str .= ' <span class="course-ascendants shadow"><img src="'.$OUTPUT->pix_url('t/down').'"></span>';
+                    $str .= ' <span class="course-ascendants shadow"><img src="'.$this->output->pix_url('t/down').'"></span>';
                 }
             }
         }
@@ -68,24 +74,29 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
             $description = format_text($course->summary);
             $str .= '<div class="block-ascendants course-description">'.$description;
 
-            if (!has_capability('block/course_ascendants:configure', $blockcontext, $USER->id, false) && $course->enablecompletion) {
-    
+            if (!has_capability('block/course_ascendants:configure', $blockcontext, $USER->id, false) &&
+                    $course->enablecompletion) {
+
                 $completedstr = get_string('completed', 'block_course_ascendants');
                 $enrolledstr = get_string('enrolled', 'block_course_ascendants');
                 $unenrolledstr = get_string('unenrolled', 'block_course_ascendants');
-    
+
                 $str .= '<div class="block-ascendants-module-completion">';
                 if ($course->completionenrolled) {
                     if ($course->completioncompleted) {
                         $e = new StdClass();
                         $e->completed = userdate($course->completioncompleted);
                         $e->days = ceil($course->completioncompleted - $course->completionenrolled / DAYSECS);
-                        $str .= get_string('completedon', 'block_course_ascendants', $e).' <img src="'.$OUTPUT->pix_url('completed', 'block_course_ascendants').'" title="'.$completedstr.'" /> ';
+                        $str .= get_string('completedon', 'block_course_ascendants', $e);
+                        $pixurl = $this->output->pix_url('completed', 'block_course_ascendants');
+                        $str .= ' <img src="'.$pixurl.'" title="'.$completedstr.'" /> ';
                     } else {
-                        $str .= ' <img src="'.$OUTPUT->pix_url('notcompleted', 'block_course_ascendants').'"  title="'.$enrolledstr.'" /> ';
+                        $pixurl = $this->output->pix_url('notcompleted', 'block_course_ascendants');
+                        $str .= ' <img src="'.$pixurl.'"  title="'.$enrolledstr.'" /> ';
                     }
                 } else {
-                    $str .= ' <img src="'.$OUTPUT->pix_url('notvisited', 'block_course_ascendants').'"  title="'.$unenrolledstr.'" /> ';
+                    $pixurl = $this->output->pix_url('notvisited', 'block_course_ascendants');
+                    $str .= ' <img src="'.$pixurl.'"  title="'.$unenrolledstr.'" /> ';
                 }
                 $str .= '</div>';
             }

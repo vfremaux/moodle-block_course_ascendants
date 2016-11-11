@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Version details
  *
@@ -24,12 +22,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 function list_up($blockid, $courseid) {
     global $DB;
 
     $item = $DB->get_record('block_course_ascendants', array('blockid' => $blockid, 'courseid' => $courseid));
-    if (!$nextitem = $DB->get_record('block_course_ascendants', array('blockid' => $item->blockid, 'sortorder' => $item->sortorder + 1))) {
+    $params = array('blockid' => $item->blockid, 'sortorder' => $item->sortorder + 1);
+    if (!$nextitem = $DB->get_record('block_course_ascendants', $params)) {
         return;
     }
     $nextitem->sortorder--;
@@ -45,7 +45,8 @@ function list_down($blockid, $courseid) {
     if ($item->sortorder == 0) {
         return;
     }
-    $previtem = $DB->get_record('block_course_ascendants', array('blockid' => $item->blockid, 'sortorder' => $item->sortorder - 1));
+    $params = array('blockid' => $item->blockid, 'sortorder' => $item->sortorder - 1);
+    $previtem = $DB->get_record('block_course_ascendants', $params);
     $previtem->sortorder++;
     $item->sortorder--;
     $DB->update_record('block_course_ascendants', $item);

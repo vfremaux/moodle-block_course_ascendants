@@ -18,8 +18,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function xmldb_block_course_ascendants_upgrade($oldversion=0) {
-    global $CFG, $THEME, $DB;
+function xmldb_block_course_ascendants_upgrade($oldversion = 0) {
+    global $CFG, $DB;
 
     $dbman = $DB->get_manager();
 
@@ -29,6 +29,7 @@ function xmldb_block_course_ascendants_upgrade($oldversion=0) {
 
     if ($oldversion < 2015101601) {
 
+        // Convert settings to plugin scope settings.
         set_config('defaultcreatecoursegroup', $CFG->block_ascendants_defaultcreatecoursegroup, 'block_course_ascendants');
         set_config('coursegroupnamebase', $CFG->block_ascendants_coursegroupnamebase, 'block_course_ascendants');
         set_config('coursegroupnamefilter', $CFG->block_ascendants_coursegroupnamefilter, 'block_course_ascendants');
@@ -77,7 +78,7 @@ function block_ascendants_feed_instances() {
     $instances = $DB->get_records('block_instances', array('blockname' => 'course_ascendants'));
     if ($instances) {
 
-        // Full remap all sortorders
+        // Full remap all sortorders.
         $DB->delete_records('block_course_ascendants', array());
 
         foreach ($instances as $bi) {

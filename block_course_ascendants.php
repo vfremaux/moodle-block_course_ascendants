@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package    block_course_ascendants
  * @category   blocks
@@ -24,36 +22,36 @@ defined('MOODLE_INTERNAL') || die();
  *
  * the block course ascendants
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/blocks/course_ascendants/listlib.php');
 
 class block_course_ascendants extends block_base {
 
-    function init() {
+    public function init() {
         $this->title = get_string('title', 'block_course_ascendants');
     }
 
-    function has_config() {
+    public function has_config() {
         return true;
     }
 
-    function applicable_formats() {
+    public function applicable_formats() {
         return array('course' => true, 'mod' => false, 'tag' => false, 'my' => false);
     }
 
-    function instance_allow_config() {
+    public function instance_allow_config() {
         return true;
     }
 
-    function instance_allow_multiple() {
+    public function instance_allow_multiple() {
         return false;
     }
 
     /**
      * Serialize and store config data
      */
-    function instance_config_save($data, $nolongerused = false) {
-        global $DB;
+    public function instance_config_save($data, $nolongerused = false) {
 
         if (!isset($data->showdescription)) $data->showdescription = 0;
 
@@ -61,8 +59,8 @@ class block_course_ascendants extends block_base {
     }
 
 
-    function get_content() {
-        global $CFG, $COURSE, $PAGE, $USER;
+    public function get_content() {
+        global $COURSE, $PAGE, $USER;
 
         if ($this->content !== null) {
             return $this->content;
@@ -120,8 +118,9 @@ class block_course_ascendants extends block_base {
                         $this->content->text .= '<div clas="courses">';
                         foreach ($cat->courses as $ascendant) {
                             $asccontext = context_course::instance($ascendant->id);
-                            if (!is_enrolled($asccontext, $USER->id, '', true) and
-                !is_viewing($asccontext, $USER->id) and !is_siteadmin($USER->id)) {
+                            if (!is_enrolled($asccontext, $USER->id, '', true) &&
+                                    !is_viewing($asccontext, $USER->id) &&
+                                            !is_siteadmin($USER->id)) {
                                 continue;
                             }
                             $this->content->text .= $renderer->courserow($ascendant, $this);
@@ -167,8 +166,8 @@ class block_course_ascendants extends block_base {
     /**
      * Reads category tree in correct order.
      */
-    function read_category_tree($catstart, &$categories, $seeunbound = false, $seeinvisible = false) {
-        global $CFG, $COURSE, $DB;
+    public function read_category_tree($catstart, &$categories, $seeunbound = false, $seeinvisible = false) {
+        global $DB;
         static $level = 0;
 
         if ($catstart != 0 && $level == 0) {
@@ -187,10 +186,14 @@ class block_course_ascendants extends block_base {
         }
 
         // Get in subcats.
-        if ($catlevel = $DB->get_records_select('course_categories', "parent = ? ", array($catstart), 'sortorder', 'id,name,visible')) {
+        $select = "parent = ? ";
+        $fields = 'id,name,visible';
+        if ($catlevel = $DB->get_records_select('course_categories', $select, array($catstart), 'sortorder', $fields)) {
             foreach($catlevel as $cat) {
                 $catcontext = context_coursecat::instance($cat->id);
-                if ((!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $catcontext)) && !$seeinvisible) {
+                if ((!$cat->visible &&
+                        !has_capability('moodle/category:viewhiddencategories', $catcontext)) &&
+                                !$seeinvisible) {
                     continue;
                 }
 
@@ -209,7 +212,6 @@ class block_course_ascendants extends block_base {
                 $level--;
             }
         }
-        // if ($level == 0) print_object($categories);
     }
 
     /**
@@ -219,7 +221,7 @@ class block_course_ascendants extends block_base {
      * @param int $catid the root category where to search
      * @param bool $seeunbound
      */
-    function get_ascendants($catid, $seeunbound, $courseid = null) {
+    public function get_ascendants($catid, $seeunbound, $courseid = null) {
         global $COURSE, $DB, $USER;
 
         // Getting all meta enrols that point me.
@@ -275,7 +277,7 @@ class block_course_ascendants extends block_base {
     /**
      * Same but recursively
      */
-    function get_all_ascendants($catid, $seeunbound, $courseid = null) {
+    public function get_all_ascendants($catid, $seeunbound, $courseid = null) {
         global $DB;
 
         $ascendants = array();
@@ -295,8 +297,8 @@ class block_course_ascendants extends block_base {
     /**
      *
      */
-    function user_can_edit() {
-        global $CFG, $COURSE;
+    public function user_can_edit() {
+        global $COURSE;
 
         $context = context_course::instance($COURSE->id);
         if (has_capability('block/course_ascendants:configure', $context)) {
@@ -310,7 +312,7 @@ class block_course_ascendants extends block_base {
      * tests if full course group exists
      *
      */
-    function has_course_group() {
+    public function has_course_group() {
         global $COURSE, $DB;
 
         return $DB->record_exists('groups', array('courseid' => $COURSE->id, 'name' => $COURSE->shortname));
@@ -320,7 +322,7 @@ class block_course_ascendants extends block_base {
      * registeres a "full course" (all participants) group
      *
      */
-    function make_course_group() {
+    public function make_course_group() {
         global $COURSE, $DB;
 
         if (!$this->has_course_group()) {
@@ -335,7 +337,11 @@ class block_course_ascendants extends block_base {
 }
 
 function sort_by_localorder(&$a, &$b) {
-    if ($a->localorder > $b->localorder) return 1;
-    if ($a->localorder < $b->localorder) return -1;
+    if ($a->localorder > $b->localorder) {
+        return 1;
+    }
+    if ($a->localorder < $b->localorder) {
+        return -1;
+    }
     return 0;
 }
