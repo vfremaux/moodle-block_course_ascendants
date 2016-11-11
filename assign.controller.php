@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- * Block instance editing form.
- *
  * @package    block_course_ascendants
  * @category   blocks
  * @author     Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
@@ -26,6 +22,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * controller for course assignation
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/enrol/meta/locallib.php');
 require_once($CFG->dirroot.'/enrol/meta/lib.php');
@@ -36,7 +33,7 @@ if ($data) {
     $inputdata = preg_grep('/^c\d+/', array_keys($dataarr));
     $allmetas = array();
 
-    // Prepare next order for insertion
+    // Prepare next order for insertion.
     $lastorder = list_last_order($id);
     if (is_null($lastorder)) {
         $neworder = 0;
@@ -49,11 +46,12 @@ if ($data) {
         foreach ($inputdata as $cid) {
             $metaid = str_replace('c', '', $cid);
 
-            if ($enrol = $DB->get_record('enrol', array('enrol' => 'meta', 'customint1' => $data->course, 'courseid' => $metaid))) {
+            $params = array('enrol' => 'meta', 'customint1' => $data->course, 'courseid' => $metaid);
+            if ($enrol = $DB->get_record('enrol', $params)) {
                 $enrol->status = !$dataarr[$cid];
                 $DB->update_record('enrol', $enrol);
                 if (!$dataarr[$cid]) {
-                    // Not any more an attached module
+                    // Not any more an attached module.
                     if ($DB->record_exists('block_course_ascendants', array('blockid' => $id, 'courseid' => $metaid))) {
                         list_remove($id, $metaid);
                     }
@@ -113,9 +111,11 @@ if ($data) {
                 $context = context_course::instance($m);
                 foreach ($members as $u) {
                     // We need check if candidate usr to transfer has real role (was synced bymetacourse).
-                    if ($DB->get_records_select('role_assignments', " contextid = $context->id AND userid = $u->id AND hidden = 0 ")) {
+                    $select = " contextid = ? AND userid = ? AND hidden = 0 ";
+                    if ($DB->get_records_select('role_assignments', $select, array($context->id, $u->id))) {
                         // Just create if not registered there.
-                        if (!$DB->record_exists('groups_members', array('groupid' => $metagroup->id, 'userid' => $u->id))) {
+                        $params = array('groupid' => $metagroup->id, 'userid' => $u->id);
+                        if (!$DB->record_exists('groups_members', $params)) {
                             $groupmember = new StdClass;
                             $groupmember->groupid = $metagroup->id;
                             $groupmember->userid = $u->id;

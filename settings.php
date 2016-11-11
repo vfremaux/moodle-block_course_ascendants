@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package    block_course_ascendants
  * @category   blocks
  * @copyright  2012 onwards Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 $namebaseoptions[0] = get_string('fullname');
 $namebaseoptions[1] = get_string('shortname');
@@ -30,12 +29,24 @@ $namebaseoptions[2] = get_string('idnumber');
 $yesnooptions[0] = get_string('no');
 $yesnooptions[1] = get_string('yes');
 
-$settings->add(new admin_setting_configselect('block_course_ascendants/defaultcreatecoursegroup', get_string('createcoursegroup', 'block_course_ascendants'), '', '0', $yesnooptions));
+$key = 'block_course_ascendants/defaultcreatecoursegroup';
+$label = get_string('createcoursegroup', 'block_course_ascendants');
+$desc = '';
+$settings->add(new admin_setting_configselect($key, $label, $desc, '0', $yesnooptions));
 
-$settings->add(new admin_setting_configselect('block_course_ascendants/coursegroupnamebase', get_string('coursegroupnamebase', 'block_course_ascendants'), '', 'shortname', $namebaseoptions));
+$key = 'block_course_ascendants/coursegroupnamebase';
+$label = get_string('coursegroupnamebase', 'block_course_ascendants');
+$desc = '';
+$settings->add(new admin_setting_configselect($key, $label, $desc, 'shortname', $namebaseoptions));
 
-$settings->add(new admin_setting_configtext('block_course_ascendants/coursegroupnamefilter', get_string('coursegroupnamefilter', 'block_course_ascendants'), '', ''));
+$key = 'block_course_ascendants/coursegroupnamefilter';
+$label = get_string('coursegroupnamefilter', 'block_course_ascendants');
+$desc = '';
+$settings->add(new admin_setting_configtext($key, $label, $desc, ''));
 
 $arrangeopts = array('0' => get_string('bycats', 'block_course_ascendants'),
-    '1' => get_string('byplan', 'block_course_ascendants'));
-$settings->add(new admin_setting_configselect('block_course_ascendants/arrangeby', get_string('arrangebydefault', 'block_course_ascendants'), '', 0, $arrangeopts));
+                     '1' => get_string('byplan', 'block_course_ascendants'));
+$key = 'block_course_ascendants/arrangeby';
+$label = get_string('arrangebydefault', 'block_course_ascendants');
+$desc = '';
+$settings->add(new admin_setting_configselect($key, $label, $desc, 0, $arrangeopts));
