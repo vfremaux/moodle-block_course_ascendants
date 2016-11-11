@@ -28,7 +28,7 @@
 require('../../config.php');
 require_once($CFG->dirroot.'/blocks/course_ascendants/assign_form.php');
 
-$courseid = required_param('course', PARAM_INT) ; // The course id.
+$courseid = required_param('course', PARAM_INT); // The course id.
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourseid');

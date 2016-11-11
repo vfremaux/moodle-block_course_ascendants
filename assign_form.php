@@ -28,7 +28,7 @@ require_once($CFG->libdir.'/formslib.php');
 
 class Assign_Form extends moodleform {
 
-    var $blockinstance;
+    protected $blockinstance;
 
     public function __construct($action, &$theblock) {
         $this->blockinstance = $theblock;
@@ -75,7 +75,8 @@ class Assign_Form extends moodleform {
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
                 $label = get_string('close', 'block_course_ascendants');
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 0, $attrs);
-                $mform->addGroup($radioarray, 'radioar', format_string($name), array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'), false);
+                $padding = array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+                $mform->addGroup($radioarray, 'radioar', format_string($name), $padding, false);
             }
         }
 
