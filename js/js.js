@@ -1,3 +1,8 @@
-function notifyeffect(text){
-	alert(text);
+/**
+ *
+ */
+// jshint undef:false, unused:false
+
+function notifyeffect(text) {
+    alert(text);
 }
