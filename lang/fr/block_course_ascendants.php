@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 $string['course_ascendants:addinstance'] = 'Ajouter un bloc Cours Ascendants';
 $string['course_ascendants:configure'] = 'Peut configurer';
@@ -41,13 +55,13 @@ $string['completedon'] = 'Terminé le {$a->completed} (en {$a->days} jours)';
 
 $string['opencoursemodules_help'] = '
     <h3>Ouvrir / fermer des modules</h3>
-    
-    <p>En ouvrant des modules, vous accrochez des méta-cours à ce cours. Vos 
+
+    <p>En ouvrant des modules, vous accrochez des méta-cours à ce cours. Vos
         apprenants deviennent automatiquement apprenants enregistrés du module
     de formation sans aucune autre action.</p>
     <p>en formant un module, vous déliez le module de formation de ce cours. Les
         apprenants ne pourront plus s\'y rendre, mais leurs productions (document, données)
-        restent préservées. Si vous ouvrez à nouveau ce module, les apprenants qui y ont 
+        restent préservées. Si vous ouvrez à nouveau ce module, les apprenants qui y ont
     eu une activité retrouveront leur compte dans le même état.</p>
 ';
 

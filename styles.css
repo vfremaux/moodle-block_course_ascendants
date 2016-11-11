@@ -9,9 +9,9 @@ select.selcourses{
 }
 
 .course-ascendants.shadow{
-    opacity:0.5;
-    moz-opacity:0.5;
     -ms-filter:”alpha(opacity=50)”;
+    moz-opacity:0.5;
+    opacity:0.5;
 }
 
 .block_course_ascendants .coursebox .info .name {
@@ -20,8 +20,8 @@ select.selcourses{
 
 .coursebox .info .name a.cmd {
     background:none;
-    padding-left:5px;
     display:inline;
+    padding-left:5px;
 }
 
 .coursebox .info .name a.coursename {
@@ -33,6 +33,6 @@ select.selcourses{
 }
 
 .block-ascendants-module-completion {
-    float:right;
     clear:both;
+    float:right;
 }
