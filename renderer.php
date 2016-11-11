@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 class block_course_ascendants_renderer extends plugin_renderer_base {
 
-    function courserow($course, $theblock, $coursecount = 0) {
+    public function courserow($course, $theblock, $coursecount = 0) {
         global $COURSE, $USER;
 
         $coursecontext = context_course::instance($COURSE->id);
