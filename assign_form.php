@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
 
-class Assign_Form extends moodleform {
+class course_ascendants_assign_form extends moodleform {
 
     protected $blockinstance;
 
@@ -91,8 +91,6 @@ class Assign_Form extends moodleform {
         $this->add_action_buttons(true);
     }
 
-    public function validation($data, $files = null) {
-    }
 }
 
 function sort_by_fullname($a, $b) {
