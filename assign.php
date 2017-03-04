@@ -132,7 +132,7 @@ if ($coursegroup) {
 
 $url = new moodle_url('/blocks/course_ascendants/assign.php', array('course' => $courseid, 'id' => $id));
 
-$mform = new Assign_Form($url, $blockinstance);
+$mform = new course_ascendants_assign_form($url, $blockinstance);
 
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/course/view.php', array('id' => $courseid)));
