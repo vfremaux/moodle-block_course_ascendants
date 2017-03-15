@@ -14,25 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * @package    block_course_ascendants
+ * @category   blocks
+ * @author     Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require('../../../config.php');
+require_once($CFG->dirroot.'/blocks/course_ascendants/db/upgrade.php');
 
-$capabilities = array(
+require_login();
+require_capability('moodle/site:config', context_system::instance());
 
-    'block/course_ascendants:addinstance' => array(
-
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-
-    'block/course_ascendants:configure' => array(
-
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_COURSE,
-        'legacy' => array(
-            'manager' => CAP_ALLOW
-        )
-    ),
-);
+block_ascendants_feed_instances();

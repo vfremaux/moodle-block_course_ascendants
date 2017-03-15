@@ -1,5 +1,38 @@
 
 select.selcourses{
-	min-width:250px;
-	width:250px;
+    min-width:250px;
+    width:250px;
+}
+
+.course-ascendant-coursebox{
+    min-height:30px;
+}
+
+.course-ascendants.shadow{
+    -ms-filter:”alpha(opacity=50)”;
+    moz-opacity:0.5;
+    opacity:0.5;
+}
+
+.block_course_ascendants .coursebox .info .name {
+    float:none;
+}
+
+.coursebox .info .name a.cmd {
+    background:none;
+    display:inline;
+    padding-left:5px;
+}
+
+.coursebox .info .name a.coursename {
+    display:inline;
+}
+
+.block-ascendants.course-description{
+    overflow:auto;
+}
+
+.block-ascendants-module-completion {
+    clear:both;
+    float:right;
 }
