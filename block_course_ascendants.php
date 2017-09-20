@@ -233,51 +233,89 @@ class block_course_ascendants extends block_base {
             $courseid = $COURSE->id;
         }
 
+        $catclause = ($catid) ? " AND c.category = $catid " : '';
+
         if ($seeunbound) {
-            $invisibleclause = '((e.customint1 <> ? ) OR (e.customint1 = ? AND status = 1) OR e.id IS NULL)';
-            $params = array($this->instance->id, $USER->id, $courseid, $courseid);
-        } else {
-            $invisibleclause = ' e.customint1 = ? AND status = 0 ';
             $params = array($this->instance->id, $USER->id, $courseid);
+            $sql = "
+                SELECT DISTINCT
+                    c.id,
+                    c.category,
+                    c.shortname,
+                    c.fullname,
+                    c.sortorder,
+                    c.summary,
+                    c.visible,
+                    c.enablecompletion,
+                    bca.sortorder as localorder,
+                    cc.timecompleted as completioncompleted,
+                    cc.timeenrolled as completionenrolled,
+                    e.id as isbound
+                FROM
+                    {course} c
+                LEFT JOIN
+                    {block_course_ascendants} bca
+                ON
+                    bca.courseid = c.id AND
+                    bca.blockid = ?
+                LEFT JOIN
+                   {course_completions} cc
+                ON
+                   cc.course = c.id AND
+                   cc.userid = ?
+                LEFT JOIN
+                    {enrol} e
+                ON
+                    c.id = e.courseid AND
+                    e.enrol = 'meta' AND
+                    e.customint1 = ? AND
+                    e.status = 0
+                WHERE
+                    1 = 1
+                    $catclause
+            ";
+            $ascendants = $DB->get_records_sql($sql, $params);
+        } else {
+            $params = array($this->instance->id, $USER->id, $courseid);
+
+            $sql = "
+                SELECT DISTINCT
+                    c.id,
+                    c.category,
+                    c.shortname,
+                    c.fullname,
+                    c.sortorder,
+                    c.summary,
+                    c.visible,
+                    c.enablecompletion,
+                    bca.sortorder as localorder,
+                    cc.timecompleted as completioncompleted,
+                    cc.timeenrolled as completionenrolled
+                FROM
+                    {course} c
+                LEFT JOIN
+                    {enrol} e
+                ON
+                    c.id = e.courseid AND
+                    e.enrol = 'meta'
+                LEFT JOIN
+                    {block_course_ascendants} bca
+                ON
+                    bca.courseid = c.id AND
+                    bca.blockid = ?
+                LEFT JOIN
+                   {course_completions} cc
+                ON
+                   cc.course = c.id AND
+                   cc.userid = ?
+                WHERE
+                    e.customint1 = ? AND status = 0
+                    $catclause
+            ";
+            $ascendants = $DB->get_records_sql($sql, $params);
         }
 
-        $catclause = ($catid) ? " c.category = $catid AND " : '';
-
-        $sql = "
-            SELECT DISTINCT
-                c.id,
-                c.category,
-                c.shortname,
-                c.fullname,
-                c.sortorder,
-                c.summary,
-                c.visible,
-                c.enablecompletion,
-                bca.sortorder as localorder,
-                cc.timecompleted as completioncompleted,
-                cc.timeenrolled as completionenrolled
-            FROM
-                {course} c
-            LEFT JOIN
-                {enrol} e
-            ON
-                c.id = e.courseid AND
-                e.enrol = 'meta'
-            LEFT JOIN
-                {block_course_ascendants} bca
-            ON
-                bca.courseid = c.id AND
-                bca.blockid = ?
-            LEFT JOIN
-               {course_completions} cc
-            ON
-               cc.course = c.id AND
-               cc.userid = ?
-            WHERE
-                $catclause
-                $invisibleclause
-        ";
-        return $DB->get_records_sql($sql, $params);
+        return $ascendants;
     }
 
     /**
