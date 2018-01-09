@@ -173,8 +173,8 @@ class block_course_ascendants extends block_base {
         static $level = 0;
 
         if ($catstart != 0 && $level == 0) {
-            $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            if (!$cat->visible && !$seeinvisible) {
+            $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id, name, visible');
+            if (!$cat || (!$cat->visible && !$seeinvisible)) {
                 return;
             }
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {

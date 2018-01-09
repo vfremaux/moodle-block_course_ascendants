@@ -22,6 +22,7 @@
  * @author Moodle 2.x Valery Fremaux <valery.fremaux@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
@@ -66,7 +67,7 @@ class course_ascendants_assign_form extends moodleform {
         foreach ($courseoptions as $cc => $cs) {
             $mform->addElement('header', 'h'.$cc, format_string($cc));
             $mform->setExpanded('h'.$cc);
-            uasort($cs, 'sort_by_fullname');
+            uasort($cs, 'course_ascendants_sort_by_fullname');
             foreach ($cs as $cid => $name) {
                 $notifytext = get_string('uncheckadvice', 'block_course_ascendants');
                 $radioarray = array();
@@ -91,8 +92,10 @@ class course_ascendants_assign_form extends moodleform {
         $this->add_action_buttons(true);
     }
 
+    public function validation($data, $files = null) {
+    }
 }
 
-function sort_by_fullname($a, $b) {
+function course_ascendants_sort_by_fullname($a, $b) {
     return strcmp($a, $b);
 }
