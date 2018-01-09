@@ -30,9 +30,9 @@ class course_ascendants_assign_form extends moodleform {
 
     protected $blockinstance;
 
-    public function __construct($action, &$theblock) {
+    public function __construct($action, &$theblock, $categories) {
         $this->blockinstance = $theblock;
-        parent::__construct($action);
+        parent::__construct($action, array('categories' => $categories));
     }
 
     public function definition() {
@@ -43,14 +43,12 @@ class course_ascendants_assign_form extends moodleform {
             $this->blockinstance->config->coursescopestartcategory = $COURSE->category;
         }
 
-        $categories = array();
-        $this->blockinstance->read_category_tree($this->blockinstance->config->coursescopestartcategory, $categories, true);
         $courseoptions = array();
-        if ($categories) {
-            foreach ($categories as $cat) {
+        if ($this->_customdata['categories']) {
+            foreach ($this->_customdata['categories'] as $cat) {
                 if (!empty($cat->courses)) {
                     foreach ($cat->courses as $c) {
-                        $courseoptions[$cat->name][$c->id] = $c->fullname;
+                        $courseoptions[$cat->name][$c->id] = format_string($c->fullname);
                     }
                 }
             }
@@ -70,10 +68,10 @@ class course_ascendants_assign_form extends moodleform {
             foreach ($cs as $cid => $name) {
                 $notifytext = get_string('uncheckadvice', 'block_course_ascendants');
                 $radioarray = array();
-                $label = get_string('open', 'block_course_ascendants');
+                $label = get_string('opened', 'block_course_ascendants');
                 $attrs = array('onchange' => "notifyeffect('$notifytext')");
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
-                $label = get_string('close', 'block_course_ascendants');
+                $label = get_string('closed', 'block_course_ascendants');
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 0, $attrs);
                 $padding = array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
                 $mform->addGroup($radioarray, 'radioar', format_string($name), $padding, false);
