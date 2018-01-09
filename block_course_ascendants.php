@@ -249,7 +249,7 @@ class block_course_ascendants extends block_base {
                     c.enablecompletion,
                     bca.sortorder as localorder,
                     cc.timecompleted as completioncompleted,
-                    cc.timeenrolled as completionenrolled,
+                    ula.timeaccess as completionenrolled,
                     e.id as isbound
                 FROM
                     {course} c
@@ -270,6 +270,11 @@ class block_course_ascendants extends block_base {
                     e.enrol = 'meta' AND
                     e.customint1 = ? AND
                     e.status = 0
+                LEFT JOIN
+                    {user_lastaccess} ula
+                ON
+                    ula.userid = cc.userid AND
+                    ula.courseid = c.id
                 WHERE
                     1 = 1
                     $catclause
@@ -290,7 +295,7 @@ class block_course_ascendants extends block_base {
                     c.enablecompletion,
                     bca.sortorder as localorder,
                     cc.timecompleted as completioncompleted,
-                    cc.timeenrolled as completionenrolled
+                    ula.timeaccess as completionenrolled
                 FROM
                     {course} c
                 LEFT JOIN
@@ -308,6 +313,11 @@ class block_course_ascendants extends block_base {
                 ON
                    cc.course = c.id AND
                    cc.userid = ?
+                LEFT JOIN
+                    {user_lastaccess} ula
+                ON
+                    ula.userid = cc.userid AND
+                    ula.courseid = c.id
                 WHERE
                     e.customint1 = ? AND status = 0
                     $catclause
