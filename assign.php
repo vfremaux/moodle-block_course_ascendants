@@ -132,14 +132,10 @@ if ($coursegroup) {
 
 $url = new moodle_url('/blocks/course_ascendants/assign.php', array('course' => $courseid, 'id' => $id));
 
-<<<<<<< HEAD
-$mform = new course_ascendants_assign_form($url, $blockinstance);
-=======
 $categories = array();
 $blockinstance->read_category_tree($blockinstance->config->coursescopestartcategory, $categories, true, true);
 
 $mform = new course_ascendants_assign_form($url, $blockinstance, $categories);
->>>>>>> MOODLE_33_STABLE
 
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/course/view.php', array('id' => $courseid)));

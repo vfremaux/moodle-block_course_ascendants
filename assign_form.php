@@ -30,15 +30,9 @@ class course_ascendants_assign_form extends moodleform {
 
     protected $blockinstance;
 
-<<<<<<< HEAD
-    public function __construct($action, &$theblock) {
-        $this->blockinstance = $theblock;
-        parent::__construct($action);
-=======
     public function __construct($action, &$theblock, $categories) {
         $this->blockinstance = $theblock;
         parent::__construct($action, array('categories' => $categories));
->>>>>>> MOODLE_33_STABLE
     }
 
     public function definition() {
@@ -74,17 +68,10 @@ class course_ascendants_assign_form extends moodleform {
             foreach ($cs as $cid => $name) {
                 $notifytext = get_string('uncheckadvice', 'block_course_ascendants');
                 $radioarray = array();
-<<<<<<< HEAD
-                $label = get_string('open', 'block_course_ascendants');
-                $attrs = array('onchange' => "notifyeffect('$notifytext')");
-                $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
-                $label = get_string('close', 'block_course_ascendants');
-=======
                 $label = get_string('opened', 'block_course_ascendants');
                 $attrs = array('onchange' => "notifyeffect('$notifytext')");
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
                 $label = get_string('closed', 'block_course_ascendants');
->>>>>>> MOODLE_33_STABLE
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 0, $attrs);
                 $padding = array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
                 $mform->addGroup($radioarray, 'radioar', format_string($name), $padding, false);
