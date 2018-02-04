@@ -46,16 +46,19 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
         $str .= '<a title="'.s($course->fullname).'" href="'.$courseurl.'" class="coursename">'.format_string($fullname).'</a>';
         if (@$theblock->config->arrangeby == 1) {
             if (has_capability('block/course_ascendants:configure', $coursecontext)) {
+                $uppix = $this->output->pix_icon('t/up', get_string('up'));
                 if ($course->localorder > 0) {
                     $upurl = new moodle_url(me());
                     $upurl->params(array('what' => 'asc-down',
                                          'downcourse' => $course->id,
                                          'blockid' => $theblock->instance->id,
                                          'upcourse' => null));
-                    $str .= ' <a class="cmd" href="'.$upurl.'"><img src="'.$this->output->pix_url('t/up').'"></a>';
+                    $str .= ' <a class="cmd" href="'.$upurl.'">'.$uppix.'</a>';
                 } else {
-                    $str .= ' <span class="course-ascendants shadow"><img src="'.$this->output->pix_url('t/up').'"></span>';
+                    $str .= ' <span class="course-ascendants shadow">'.$uppix.'</span>';
                 }
+
+                $downpix = $this->output->pix_icon('t/down', get_string('down'));
                 if ($course->localorder < $coursecount - 1) {
                     $downurl = new moodle_url(me());
                     $params = array('what' => 'asc-up',
@@ -63,9 +66,9 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
                                     'blockid' => $theblock->instance->id,
                                     'downcourse' => null);
                     $downurl->params($params);
-                    $str .= ' <a class="cmd" href="'.$downurl.'"><img src="'.$this->output->pix_url('t/down').'"></a>';
+                    $str .= ' <a class="cmd" href="'.$downurl.'">'.$downpix.'</a>';
                 } else {
-                    $str .= ' <span class="course-ascendants shadow"><img src="'.$this->output->pix_url('t/down').'"></span>';
+                    $str .= ' <span class="course-ascendants shadow">'.$downpix.'</span>';
                 }
             }
         }
@@ -88,15 +91,12 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
                         $e->completed = userdate($course->completioncompleted);
                         $e->days = ceil($course->completioncompleted - $course->completionenrolled / DAYSECS);
                         $str .= get_string('completedon', 'block_course_ascendants', $e);
-                        $pixurl = $this->output->pix_url('completed', 'block_course_ascendants');
-                        $str .= ' <img src="'.$pixurl.'" title="'.$completedstr.'" /> ';
+                        $str .= $this->output->pix_icon('completed', $completedstr, 'block_course_ascendants');
                     } else {
-                        $pixurl = $this->output->pix_url('notcompleted', 'block_course_ascendants');
-                        $str .= ' <img src="'.$pixurl.'"  title="'.$enrolledstr.'" /> ';
+                        $str .= $this->output->pix_icon('notcompleted', $enrolledstr, 'block_course_ascendants');
                     }
                 } else {
-                    $pixurl = $this->output->pix_url('notvisited', 'block_course_ascendants');
-                    $str .= ' <img src="'.$pixurl.'"  title="'.$unenrolledstr.'" /> ';
+                    $str .= $this->output->pix_icon('notvisited', $unenrolledstr, 'block_course_ascendants');
                 }
                 $str .= '</div>';
             }
