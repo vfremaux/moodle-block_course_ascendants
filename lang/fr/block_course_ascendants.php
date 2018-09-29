@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 $string['course_ascendants:addinstance'] = 'Ajouter un bloc Cours Ascendants';
-$string['course_ascendants:configure'] = 'Peut configurer';
+$string['course_ascendants:configure'] = 'Configurer';
+
+// Privacy
+$string['privacy:metadata'] = 'Le bloc Cours Ascendants ne détient directement aucune donnée relative aux utilisateurs.';
 
 $string['ascendantsaccess'] = 'Accès aux modules liés';
 $string['arrangebydefault'] = 'Arranger par (défaut)';
