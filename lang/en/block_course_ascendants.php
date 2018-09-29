@@ -17,6 +17,9 @@
 $string['course_ascendants:addinstance'] = 'Can add to course';
 $string['course_ascendants:configure'] = 'Can configure';
 
+// Privacy
+$string['privacy:metadata'] = 'The Course Ascendants block does not store any personal data about any user.';
+
 $string['ascendantsaccess'] = 'Access to ascendant course modules';
 $string['arrangebydefault'] = 'Arrange by (default)';
 $string['blockname'] = 'Ascendants courses';
