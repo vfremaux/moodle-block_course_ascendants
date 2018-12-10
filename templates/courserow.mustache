@@ -1,0 +1,65 @@
+{{!
+    This file is part of The Course Ascendants Block
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_course_ascendants/courserow
+
+    Block template for displaying the sharedresources tool list
+
+    Classes required for JS:
+    * none
+
+    Context variables required for this template:
+    * undocumented @see block's renderer for reference
+}}
+<!-- block_course_ascendants/courserow -->
+<div class="course-ascendant-coursebox coursebox">
+    <div class="info">
+        <div class="name">
+            <a title="{{fullname}}" href="{{{courseurl}}}" class="coursename">{{fullname}}</a>
+            {{#arrangeinternalorder}}
+            {{#canup}}
+            <a class="cmd" href="{{{upurl}}}">{{{uppix}}}</a>
+            {{/canup}}
+            {{^canup}}
+            <span class="course-ascendants shadow">{{{uppix}}}</span>
+            {{/canup}}
+
+            {{#candown}}
+            <a class="cmd" href="{{{downurl}}}">{{{downpix}}}</a>
+            {{/candown}}
+            {{^candown}}
+            <span class="course-ascendants shadow">{{{downpix}}}</span>
+            {{/candown}}
+            {{/arrangeinternalorder}}
+
+        </div>
+ 
+        {{#showdescription}}
+        <div class="block-ascendants course-description">
+            {{{description}}}
+
+            {{#hascompletion}}
+            <div class="block-ascendants-module-completion">
+                {{{completionicon}}}
+            </div>
+            {{/hascompletion}}
+
+        </div>
+        {{/showdescription}}
+    </div>
+</div>
+<!-- /block_course_ascendants/courserow -->
