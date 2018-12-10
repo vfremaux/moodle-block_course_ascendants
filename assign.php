@@ -43,6 +43,10 @@ if (!$instance = $DB->get_record('block_instances', array('id' => $id))) {
 $blockinstance = block_instance('course_ascendants', $instance);
 $context = context_block::instance($blockinstance->instance->id);
 
+$params = array('course' => $courseid, 'id' => $id);
+$url = new moodle_url('/blocks/course_ascendants/assign.php', $params);
+$PAGE->set_url($url);
+
 // Security.
 
 require_login($course);
@@ -133,6 +137,9 @@ if ($coursegroup) {
 $url = new moodle_url('/blocks/course_ascendants/assign.php', array('course' => $courseid, 'id' => $id));
 
 $categories = array();
+if (empty($blockinstance->config->coursescopestartcategory)) {
+    $blockinstance->config->coursescopestartcategory = 0;
+}
 $blockinstance->read_category_tree($blockinstance->config->coursescopestartcategory, $categories, true, true);
 
 $mform = new course_ascendants_assign_form($url, $blockinstance, $categories);
@@ -164,10 +171,12 @@ if (!empty($notify)) {
 $formdata = new StdClass;
 if (!empty($categories)) {
     foreach ($categories as $cat) {
-        foreach ($cat->courses as $cid => $course) {
-            $key = 'c'.$cid;
-            if ($course->isbound) {
-                $formdata->$key = 1;
+        if (!empty($cat->courses)) {
+            foreach ($cat->courses as $cid => $course) {
+                $key = 'c'.$cid;
+                if ($course->isbound) {
+                    $formdata->$key = 1;
+                }
             }
         }
     }

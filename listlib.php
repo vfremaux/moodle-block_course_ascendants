@@ -41,7 +41,8 @@ function list_up($blockid, $courseid) {
 function list_down($blockid, $courseid) {
     global $DB;
 
-    $item = $DB->get_record('block_course_ascendants', array('blockid' => $blockid, 'courseid' => $courseid));
+    $params = array('blockid' => $blockid, 'courseid' => $courseid);
+    $item = $DB->get_record('block_course_ascendants', $params);
     if ($item->sortorder == 0) {
         return;
     }

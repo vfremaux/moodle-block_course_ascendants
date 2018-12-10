@@ -26,86 +26,75 @@ defined('MOODLE_INTERNAL') || die();
 
 class block_course_ascendants_renderer extends plugin_renderer_base {
 
-    public function courserow($course, $theblock, $coursecount = 0) {
+    public function courserow($course, $theblock, $mincourse, $maxcourse) {
         global $COURSE, $USER;
 
         $coursecontext = context_course::instance($COURSE->id);
         $blockcontext = context_block::instance($theblock->instance->id);
 
-        $str = '';
+        $template = new StdClass;
 
-        $str .= '<div class="course-ascendant-coursebox coursebox">';
-        $str .= '<div class="info">';
-        $str .= '<div class="name">';
         if (!empty($this->config->stringlimit)) {
-            $fullname = shorten_text(format_string($course->fullname), $theblock->config->stringlimit);
+            $template->fullname = shorten_text(format_string($course->fullname), $theblock->config->stringlimit);
         } else {
-            $fullname = format_string($course->fullname);
+            $template->fullname = format_string($course->fullname);
         }
-        $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
-        $str .= '<a title="'.s($course->fullname).'" href="'.$courseurl.'" class="coursename">'.format_string($fullname).'</a>';
+        $template->courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
         if (@$theblock->config->arrangeby == 1) {
+            $template->arrangeinternalorder = true;
             if (has_capability('block/course_ascendants:configure', $coursecontext)) {
-                $uppix = $this->output->pix_icon('t/up', get_string('up'));
-                if ($course->localorder > 0) {
-                    $upurl = new moodle_url(me());
-                    $upurl->params(array('what' => 'asc-down',
+                $template->uppix = $this->output->pix_icon('t/up', get_string('up'));
+                if ($course->localorder > $mincourse) {
+                    $template->canup = true;
+                    $template->upurl = new moodle_url(me());
+                    $template->upurl->params(array('what' => 'asc-down',
                                          'downcourse' => $course->id,
                                          'blockid' => $theblock->instance->id,
                                          'upcourse' => null));
-                    $str .= ' <a class="cmd" href="'.$upurl.'">'.$uppix.'</a>';
-                } else {
-                    $str .= ' <span class="course-ascendants shadow">'.$uppix.'</span>';
                 }
 
-                $downpix = $this->output->pix_icon('t/down', get_string('down'));
-                if ($course->localorder < $coursecount - 1) {
-                    $downurl = new moodle_url(me());
+                $template->downpix = $this->output->pix_icon('t/down', get_string('down'));
+                if ($course->localorder < $maxcourse - 1) {
+                    $template->candown = true;
+                    $template->downurl = new moodle_url(me());
                     $params = array('what' => 'asc-up',
                                     'upcourse' => $course->id,
                                     'blockid' => $theblock->instance->id,
                                     'downcourse' => null);
-                    $downurl->params($params);
-                    $str .= ' <a class="cmd" href="'.$downurl.'">'.$downpix.'</a>';
-                } else {
-                    $str .= ' <span class="course-ascendants shadow">'.$downpix.'</span>';
+                    $template->downurl->params($params);
                 }
             }
         }
-        $str .= '</div>';
+
         if (!empty($theblock->config->showdescription)) {
-            $description = format_text($course->summary);
-            $str .= '<div class="block-ascendants course-description">'.$description;
+            $template->showdescription = true;
+            $template->description = format_text($course->summary);
 
             if (!has_capability('block/course_ascendants:configure', $blockcontext, $USER->id, false) &&
                     $course->enablecompletion) {
+
+                $template->hascompletion = true;
 
                 $completedstr = get_string('completed', 'block_course_ascendants');
                 $enrolledstr = get_string('enrolled', 'block_course_ascendants');
                 $unenrolledstr = get_string('unenrolled', 'block_course_ascendants');
 
-                $str .= '<div class="block-ascendants-module-completion">';
                 if ($course->completionenrolled) {
                     if ($course->completioncompleted) {
                         $e = new StdClass();
                         $e->completed = userdate($course->completioncompleted);
-                        $e->days = ceil($course->completioncompleted - $course->completionenrolled / DAYSECS);
-                        $str .= get_string('completedon', 'block_course_ascendants', $e);
-                        $str .= $this->output->pix_icon('completed', $completedstr, 'block_course_ascendants');
+                        $e->days = ceil(($course->completioncompleted - $course->completionenrolled) / DAYSECS);
+                        $template->completedonstr = get_string('completedon', 'block_course_ascendants', $e);
+                        $template->completionicon = $this->output->pix_icon('completed', $completedstr, 'block_course_ascendants');
                     } else {
-                        $str .= $this->output->pix_icon('notcompleted', $enrolledstr, 'block_course_ascendants');
+                        $template->completionicon = $this->output->pix_icon('notcompleted', $enrolledstr, 'block_course_ascendants');
                     }
                 } else {
-                    $str .= $this->output->pix_icon('notvisited', $unenrolledstr, 'block_course_ascendants');
+                    $template->completionicon = $this->output->pix_icon('notvisited', $unenrolledstr, 'block_course_ascendants');
                 }
-                $str .= '</div>';
             }
-            $str .= '</div>';
         }
 
-        $str .= '</div>';
-        $str .= '</div>';
-
-        return $str;
+        return $this->output->render_from_template('block_course_ascendants/courserow', $template);
     }
 }

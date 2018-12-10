@@ -104,7 +104,7 @@ class block_course_ascendants extends block_base {
         $this->content->text = '';
 
         if (@$this->config->arrangeby == 0) {
-            // Scan directly category results and output them in lbock space.
+            // Scan directly category results and output them in block space.
             if ($categories) {
                 foreach ($categories as $cat) {
                     if ($this->config->showcategories && !empty($cat->courses)) {
@@ -134,11 +134,19 @@ class block_course_ascendants extends block_base {
         } else {
             // Prescan categories, sort them by local order and finally output them.
             if ($categories) {
+                $mincourse = 99999;
+                $maxcourse = 0;
                 $flatcourses = array();
                 foreach ($categories as $cat) {
                     if (!empty($cat->courses)) {
                         foreach ($cat->courses as $cid => $ascendant) {
                             $flatcourses[$cid] = $ascendant;
+                            if ($ascendant->localorder < $mincourse) {
+                                $mincourse = $ascendant->localorder;
+                            }
+                            if ($ascendant->localorder > $maxcourse) {
+                                $maxcourse = $ascendant->localorder;
+                            }
                         }
                     }
                 }
@@ -148,7 +156,7 @@ class block_course_ascendants extends block_base {
                 $this->content->text .= '<div class="courses">';
                 if (!empty($flatcourses)) {
                     foreach ($flatcourses as $c) {
-                        $this->content->text .= $renderer->courserow($c, $this, count($flatcourses));
+                        $this->content->text .= $renderer->courserow($c, $this, $mincourse, $maxcourse);
                     }
                 }
                 $this->content->text .= '</div>';
