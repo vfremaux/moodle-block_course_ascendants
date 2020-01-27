@@ -103,6 +103,27 @@ class block_course_ascendants extends block_base {
         $this->content->footer = '';
         $this->content->text = '';
 
+        $mincourse = 0;
+        $maxcourse = 0;
+        if ($categories) {
+            $mincourse = 99999;
+            $maxcourse = 0;
+            $flatcourses = array();
+            foreach ($categories as $cat) {
+                if (!empty($cat->courses)) {
+                    foreach ($cat->courses as $cid => $ascendant) {
+                        $flatcourses[$cid] = $ascendant;
+                        if ($ascendant->localorder < $mincourse) {
+                            $mincourse = $ascendant->localorder;
+                        }
+                        if ($ascendant->localorder > $maxcourse) {
+                            $maxcourse = $ascendant->localorder;
+                        }
+                    }
+                }
+            }
+        }
+
         if (@$this->config->arrangeby == 0) {
             // Scan directly category results and output them in block space.
             if ($categories) {
@@ -125,7 +146,7 @@ class block_course_ascendants extends block_base {
                                             !is_siteadmin($USER->id)) {
                                 continue;
                             }
-                            $this->content->text .= $renderer->courserow($ascendant, $this);
+                            $this->content->text .= $renderer->courserow($ascendant, $this, $mincourse, $maxcourse);
                         }
                         $this->content->text .= '</div>';
                     }
@@ -134,22 +155,6 @@ class block_course_ascendants extends block_base {
         } else {
             // Prescan categories, sort them by local order and finally output them.
             if ($categories) {
-                $mincourse = 99999;
-                $maxcourse = 0;
-                $flatcourses = array();
-                foreach ($categories as $cat) {
-                    if (!empty($cat->courses)) {
-                        foreach ($cat->courses as $cid => $ascendant) {
-                            $flatcourses[$cid] = $ascendant;
-                            if ($ascendant->localorder < $mincourse) {
-                                $mincourse = $ascendant->localorder;
-                            }
-                            if ($ascendant->localorder > $maxcourse) {
-                                $maxcourse = $ascendant->localorder;
-                            }
-                        }
-                    }
-                }
 
                 uasort($flatcourses, 'sort_by_localorder');
 
@@ -182,7 +187,7 @@ class block_course_ascendants extends block_base {
 
         if ($catstart != 0 && $level == 0) {
             $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            if (!$cat->visible && !$seeinvisible) {
+            if (!$cat || (!$cat->visible && !$seeinvisible)) {
                 return;
             }
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {
