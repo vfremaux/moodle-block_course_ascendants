@@ -169,7 +169,7 @@ class block_course_ascendants extends block_base {
             }
         }
 
-        if (has_capability('moodle/course:manageactivities', $coursecontext)) {
+        if (has_capability('block/course_ascendants:configure', $coursecontext)) {
             $manageascendantsstr = get_string('manageascendants', 'block_course_ascendants');
             $params = array('course' => $COURSE->id, 'id' => $this->instance->id, 'sesskey' => sesskey());
             $linkurl = new moodle_url('/blocks/course_ascendants/assign.php', $params);
