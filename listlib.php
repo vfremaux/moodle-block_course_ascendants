@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 function list_up($blockid, $courseid) {
     global $DB;
 
-    $item = $DB->get_record('block_course_ascendants', array('blockid' => $blockid, 'courseid' => $courseid));
+    $item = $DB->get_record('block_course_ascendants', array('blockid' => $blockid, 'metaid' => $courseid));
     $params = array('blockid' => $item->blockid, 'sortorder' => $item->sortorder + 1);
     if (!$nextitem = $DB->get_record('block_course_ascendants', $params)) {
         return;
@@ -41,7 +41,8 @@ function list_up($blockid, $courseid) {
 function list_down($blockid, $courseid) {
     global $DB;
 
-    $item = $DB->get_record('block_course_ascendants', array('blockid' => $blockid, 'courseid' => $courseid));
+    $params = array('blockid' => $blockid, 'metaid' => $courseid);
+    $item = $DB->get_record('block_course_ascendants', $params);
     if ($item->sortorder == 0) {
         return;
     }
@@ -63,8 +64,8 @@ function list_last_order($blockid) {
 function list_remove($blockid, $courseid) {
     global $DB;
 
-    $oldorder = $DB->get_field('block_course_ascendants', 'sortorder', array('blockid' => $blockid, 'courseid' => $courseid));
-    $DB->delete_records('block_course_ascendants', array('blockid' => $blockid, 'courseid' => $courseid));
+    $oldorder = $DB->get_field('block_course_ascendants', 'sortorder', array('blockid' => $blockid, 'metaid' => $courseid));
+    $DB->delete_records('block_course_ascendants', array('blockid' => $blockid, 'metaid' => $courseid));
     $sql = "
         UPDATE
             {block_course_ascendants} bas

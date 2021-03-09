@@ -1,14 +1,14 @@
 
-select.selcourses{
+select.selcourses {
     min-width:250px;
     width:250px;
 }
 
-.course-ascendant-coursebox{
+.course-ascendant-coursebox {
     min-height:30px;
 }
 
-.course-ascendants.shadow{
+.course-ascendants.shadow {
     -ms-filter:"alpha(opacity=50)";
     moz-opacity:0.5;
     opacity:0.5;
@@ -28,11 +28,155 @@ select.selcourses{
     display:inline;
 }
 
-.block-ascendants.course-description{
+.block-ascendants.course-description {
     overflow:auto;
 }
 
 .block-ascendants-module-completion {
     clear:both;
     float:right;
+    margin-bottom: 10px;
+}
+
+.course-ascendant-coursebox .description-not-visible {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.block-ascendants-course-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.block-ascendants-fp-coursebox {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.block-ascendants-promowrap {
+    background-color: #f0f0f0;
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.4);
+    margin: 10px;
+    display: inline-block;
+    float: none;
+    vertical-align: bottom;
+    min-height: 250px;
+    max-width: 320px;
+    min-width: 250px;
+}
+
+.block-ascendants-promowrap h3 {
+    font-size: 1.3rem;
+}
+
+.block-ascendants-fp-coursethumb {
+  width: 100%;
+  padding-right: 0;
+  padding-top: 0;
+  padding-left: 0;
+  padding-bottom: 5px;
+}
+
+.block-ascendants-fp-courseinfo {
+    text-align: center;
+    padding: 5px;
+    clear: both;
+}
+
+.block-ascendants-fp-courseinfo > h3 {
+    line-height: 1.5;
+}
+
+.block-ascendants-fp-courseinfo > h3 > a > img {
+    margin: auto auto 10px auto;
+    height: 150px !important;
+    width:100%;
+}
+
+@media all and (min-width: 480px) and (max-width: 1280px) {
+    .block-ascendants-course-grid > div {
+        flex-basis: 20%;
+    }
+}
+
+/* Some effects on boxes */
+
+/* Opacity effect */
+.block-ascendants-fp-coursebox.with-opacity-effect {
+    background: #f8f8f8;
+}
+
+.block-ascendants-fp-coursebox.with-opacity-effect a img {
+    opacity: .5;
+    -webkit-transition: .1s ease-out;
+    transition: .1s ease-out;
+}
+
+.block-ascendants-fp-coursebox.with-opacity-effect a:hover img {
+    opacity: 1;
+}
+
+/* Halo effect */
+.block-ascendants-fp-coursebox.with-halo-effect {
+    position: relative;
+}
+
+.block-ascendants-fp-coursebox.with-halo-effect::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    display: block;
+    content: '';
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,.2);
+    border-radius: 100%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+
+.block-ascendants-fp-coursebox.with-halo-effect:hover::before {
+    -webkit-animation: block-ascendants-circle .75s;
+    animation: block-ascendants-circle .75s;
+}
+
+@-webkit-keyframes block-ascendants-circle {
+    0% {
+        opacity: 1;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        width: 130%;
+        height: 130%;
+        opacity: 0;
+    }
+}
+
+@keyframes block-ascendants-circle {
+    0% {
+        opacity: 1;
+    }
+        40% {
+        opacity: 1;
+    }
+    100% {
+        width: 130%;
+        height: 130%;
+        opacity: 0;
+    }
+}
+
+.block_ascendants-info {
+    color: white;
+    background-color: #5bc0de;
 }
