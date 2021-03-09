@@ -20,41 +20,75 @@ $string['course_ascendants:configure'] = 'Configurer';
 // Privacy
 $string['privacy:metadata'] = 'Le bloc Cours Ascendants ne détient directement aucune donnée relative aux utilisateurs.';
 
+$string['alttitle'] = 'Titre alternatif';
+$string['alttitle_help'] = 'Laisser vide pour le titre par défaut';
+$string['arrangeby'] = 'Arranger par';
 $string['ascendantsaccess'] = 'Accès aux modules liés';
-$string['arrangebydefault'] = 'Arranger par (défaut)';
+$string['badcmid'] = 'Id de module d\'activité invalide';
 $string['blockname'] = 'Cours ascendants';
-$string['createcoursegroup'] = 'Créer le groupe de cours';
-$string['configcatstringfilter'] = 'Filtre sur les catégories';
-$string['configcatstringfilter_help'] = 'Une expression régulière permettant de ne garder qu\'une portion du nom de catégorie';
-$string['configcoursegroupname'] = 'Base du nom pour groupe de cours';
-$string['configcoursegroupname_help'] = 'Ce paramètre permet de sélectionner la donnée de base à partir de laquelle le nom du groupe de cours est créé';
-$string['configcreatecoursegroup_help'] = 'Un groupe de cours local est un groupe qui prend toutes les personnes présentes du cours. Ce groupe s\'il existe, peut être transféré et synchronisé dans les modules de cours liés pour le cursus, au moment de leur l\'ouverture.';
-$string['configshowdescription'] = 'Afficher la description de cours';
-$string['configshowdescription_help'] = 'Si cette option est active, la description de cours sera affichée en dessous du lien vers le cours';
-$string['configstringlimit_help'] = 'Fixe une limite maximale pour la longueur des labels de liens. Laisser à 0 pour aucune limite.';
-$string['configarrangeby'] = 'Arranger par';
 $string['bycats'] = 'Catégories';
 $string['byplan'] = 'Ordre du plan de formation';
-$string['coursegroupcreated'] = 'La création automatique de groupe de cours est active et aucun groupe n\'était détecté. Le groupe de cours est créé.';
-$string['coursegroupname'] = 'Nom du groupe de cours';
-$string['coursegroupnamefilter'] = 'Filtre (regexp) pour nom de cours';
-$string['configcoursescopestartcategory'] = 'Catégorie de choix des cours ';
-$string['configcreatecoursegroup'] = 'Créer automatiquement le groupe de cours local';
-$string['fullcourse'] = 'Groupe complet';
-$string['manageascendants'] = 'Ouvrir/fermer des modules';
-$string['options'] = 'Options';
-$string['opened'] = 'Ajouté';
+$string['catstringfilter'] = 'Filtre sur les catégories';
+$string['catstringfilter_help'] = 'Une expression régulière permettant de ne garder qu\'une portion du nom de catégorie';
 $string['closed'] = 'Retiré';
-$string['pluginname'] = 'Cours ascendants';
-$string['pushnewgroups'] = 'Pousser les nouveaux groupes lors de l\'ouverture';
-$string['configshowcategories'] = 'Voir les catégories ';
-$string['configstringlimit'] = 'Limite de longueur des noms ';
-$string['title'] = 'Mon parcours de formation';
-$string['uncheckadvice'] = 'Attention, refermer un module peut conduire à une perte des productions de certains étudiants';
-$string['enrolled'] = 'En cours';
-$string['unenrolled'] = 'pas encore commencé';
+$string['cmlockon'] = 'Verrou d\'activité : ';
 $string['completed'] = 'Terminé';
 $string['completedon'] = 'Terminé le {$a->completed} (en {$a->days} jours)';
+$string['completionlocked'] = 'Verrouiler la liste sur l\'achèvement de cours';
+$string['completionlocked_help'] = 'Si cette option est active, les modules non commencés ne sont pas accessibles tant que tous les modules commencés sont achevés';
+$string['configdefaultarrangeby'] = 'Arranger par (défaut)';
+$string['configdefaultarrangeby_desc'] = 'Valeur par défaut de l\'ordre de rangement des cours pour les nouvelles instances.';
+$string['configdefaultcoursedisplaymode'] = 'Mode d\'affichage des cours (défaut)';
+$string['configdefaultcoursedisplaymode_desc'] = 'Vous pouvez choisir entre le mode "liste" ou le mode "cartes". Ceci est la valeur par défaut pour les nouvelles instances de blocs.';
+$string['configdefaultcoursegroupnamebase'] = 'Base du nom pour le groupe de cursus (défaut)';
+$string['configdefaultcoursegroupnamefilter'] = 'Filtre d\'extraction du nom de groupe (défaut)';
+$string['configdefaultcoursegroupnamefilter_desc'] = 'Extrait le nom de groupe de la base du nom. Une expression régulière disposant d\'un sous-motif de capture "()".';
+$string['configdefaultcreatecoursegroup'] = 'Creation du groupe de cursus (default)';
+$string['configdefaultcreatecoursegroup_desc'] = 'Valeur par défaut de l\'option de création du groupe de cursus. Le groupe de cursus rassemble tous les étudiants inscrits dans les modules provenant d\'un cursus partieulier';
+$string['showcategories'] = 'Voir les catégories ';
+$string['stringlimit'] = 'Limite de longueur des noms ';
+$string['configtitle'] = 'Titre du bloc (laisser vide pour le titre par défaut).';
+$string['coursedisplaymode'] = 'Mode d\'affichage';
+$string['coursegroupcreated'] = 'La création automatique de groupe de cours est active et aucun groupe n\'était détecté. Le groupe de cours est créé.';
+$string['coursegroupnamebase'] = 'Base du nom pour groupe de cours';
+$string['coursegroupnamebase_help'] = 'Ce paramètre permet de sélectionner la donnée de base à partir de laquelle le nom du groupe de cours est créé';
+$string['coursegroupnamefilter'] = 'Filtre (regexp) pour nom de cours';
+$string['courselock'] = 'Achèvement du cours';
+$string['coursescopestartcategory'] = 'Catégorie de choix des cours ';
+$string['courseboxheight'] = 'Hauteur de boite de courd';
+$string['courseboxheight_desc'] = 'Concerne uniquement le mode d\'affichage par boîte. Peut être surchagé par la valeur du plugin local_my s\'il est installé';
+$string['createcoursegroup'] = 'Créer automatiquement le groupe de cours local';
+$string['createcoursegroup_help'] = 'Un groupe de cours local est un groupe qui prend toutes les personnes présentes du cours. Ce groupe s\'il existe, peut être transféré et synchronisé dans les modules de cours liés pour le cursus, au moment de leur l\'ouverture.';
+$string['enrolled'] = 'En cours';
+$string['feedcourseids'] = 'Calcul des ids de cours : {$a->total} / {$a->done}';
+$string['fullcourse'] = 'Groupe complet';
+$string['gotocourse'] = 'Aller au cours';
+$string['globalcoursegroup'] = 'Créer le groupe de cours dans les modules de formation';
+$string['propagateexistinggroups'] = 'Propager les groupes existants';
+$string['list'] = 'Liste';
+$string['manageascendants'] = 'Ouvrir / fermer des modules';
+$string['nolock'] = 'Pas de verrouillage';
+$string['opened'] = 'Ajouté';
+$string['options'] = 'Options';
+$string['pluginname'] = 'Cours ascendants';
+$string['pushnewgroups'] = 'Pousser les nouveaux groupes lors de l\'ouverture';
+$string['showcategories'] = 'Voir les catégories ';
+$string['showdescription'] = 'Afficher la description de cours';
+$string['showdescription_help'] = 'Si cette option est active, la description de cours sera affichée en dessous du lien vers le cours';
+$string['stringlimit'] = 'Limite de longueur des noms ';
+$string['stringlimit_help'] = 'Fixe une limite maximale pour la longueur des labels de liens. Laisser à 0 pour aucune limite.';
+$string['tiles'] = 'Cartes';
+$string['title'] = 'Mon parcours de formation';
+$string['uncheckadvice'] = 'Attention, refermer un module peut conduire à une perte des productions de certains étudiants';
+$string['unenrolled'] = 'pas encore commencé';
+
+
+$string['completionlocked_help'] = '
+    Si cette fonction est activée, les liens des cours ne seront libérés que si le module précédent de la liste a été achevé. Ceci suppose aussi que :
+
+    Les tableaux de bord ou listes de cours ne permettent pas aux utilisateurs d\'atteindre directement le cours en cas d\'inscription par métacours,
+    et que l\'achèvement de cours soit configuré dans tous les modules.
+';
 
 $string['opencoursemodules_help'] = '
     <h3>Ouvrir / fermer des modules</h3>
@@ -72,3 +106,7 @@ $string['pushnewgroups_help'] = '
     Vous avez activé la synchronisation du groupe de cours local. si vous laissez cete case cochée, un groupe correspondant au
     groupe de cours local sera créé et synchronisé dans tous les nouveaux modules ouverts.
 ';
+
+$string['coursescopestartcategory_help'] = 'Les cours de cette catégorie et ses descendantes pourront être assignés comme modules d\'apprentissage';
+
+include(__DIR__.'/pro_additional_strings.php');
