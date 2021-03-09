@@ -281,6 +281,8 @@ class block_course_ascendants extends block_base {
                     bca.sortorder as localorder,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled,
+                    bca.locktype,
+                    bca.lockcmid,
                     bca.id as isbound
                 FROM
                     {course} c
@@ -327,6 +329,8 @@ class block_course_ascendants extends block_base {
                     c.visible,
                     c.enablecompletion,
                     bca.sortorder as localorder,
+                    bca.locktype,
+                    bca.lockcmid,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled
                 FROM
@@ -436,6 +440,23 @@ class block_course_ascendants extends block_base {
         $this->islocked = false;
     }
 
+    public function can_lock($course) {
+        global $DB;
+
+        if ($course->locktype == 0) {
+            return false;
+        }
+
+        if ($course->locktype == 2 && $course->lockcmid) {
+            // If course module assigned to this meta is completed and lock is driven by cm completion, must pass its turn to lock.
+            if ($state = $DB->get_field('course_modules_completion', 'completionstate', ['userid' => $USER->id, 'coursemoduleid' => $course->lockcmid])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function get_renderer() {
         global $PAGE, $CFG;
 
@@ -447,6 +468,28 @@ class block_course_ascendants extends block_base {
         }
 
         return $renderer;
+    }
+
+    /**
+     * Resolves some forced value for box heights.
+     */
+    public function get_forced_height() {
+        global $CFG;
+
+        $config = get_config('block_course_ascendants');
+
+        if (empty($config->courseboxheight)) {
+            $config->courseboxheight = '450px';
+        }
+
+        $height = $config->courseboxheight;
+
+        if (is_dir($CFG->dirroot.'/local/my')) {
+            $config = get_config('local_my');
+            $height = $config->courseboxheight;
+        }
+
+        return $height;
     }
 }
 

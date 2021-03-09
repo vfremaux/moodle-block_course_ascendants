@@ -31,6 +31,12 @@ if ($hassiteconfig) {
     $desc = '';
     $settings->add(new admin_setting_configselect($key, $label, $desc, 0, $arrangeopts));
 
+    $key = 'block_course_ascendants/courseboxheight';
+    $label = get_string('courseboxheight', 'block_course_ascendants');
+    $desc = get_string('courseboxheight_desc', 'block_course_ascendants');
+    $default = '500px';
+    $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
+
     if (block_course_ascendants_supports_feature('emulate/community') == 'pro') {
         include_once($CFG->dirroot.'/blocks/course_ascendants/pro/prolib.php');
         \block_course_ascendants\pro_manager::add_settings($ADMIN, $settings);

@@ -32,5 +32,12 @@ $observers = array (
         'internal'    => true,
         'priority'    => 9999,
     ),
+    array(
+        'eventname'   => '\core\event\group_member_removed',
+        'callback'    => 'block_course_ascendants_observer::on_group_member_removed',
+        'includefile' => '/blocks/course_ascendants/observers.php',
+        'internal'    => true,
+        'priority'    => 9999,
+    ),
 
 );

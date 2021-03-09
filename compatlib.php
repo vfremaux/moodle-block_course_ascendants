@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 class compat {
 
     public static function get_course_list($course) {
-        return new \course_in_list($course);
+        return new \core_course_list_element($course);
     }
 
 }

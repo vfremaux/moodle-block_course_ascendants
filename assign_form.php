@@ -63,6 +63,11 @@ class course_ascendants_assign_form extends moodleform {
             $mform->setExpanded('h'.$cc);
             uasort($cs, 'sort_by_fullname');
             foreach ($cs as $cid => $name) {
+
+                if ($cid == $COURSE->id) {
+                    continue;
+                }
+
                 $notifytext = get_string('uncheckadvice', 'block_course_ascendants');
                 $radioarray = array();
                 $label = get_string('opened', 'block_course_ascendants');
@@ -70,6 +75,25 @@ class course_ascendants_assign_form extends moodleform {
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 1, $attrs);
                 $label = get_string('closed', 'block_course_ascendants');
                 $radioarray[] =& $mform->createElement('radio', 'c'.$cid, '', $label, 0, $attrs);
+
+                if (!empty($this->blockinstance->config->completionlocked)) {
+                    $label = get_string('nolock', 'block_course_ascendants');
+                    $radioarray[] =& $mform->createElement('radio', 'l'.$cid, '', $label, 0, $attrs);
+
+                    $label = get_string('courselock', 'block_course_ascendants');
+                    $radioarray[] =& $mform->createElement('radio', 'l'.$cid, '', $label, 1, $attrs);
+
+                    $label = get_string('cmlockon', 'block_course_ascendants');
+                    $radioarray[] =& $mform->createElement('radio', 'l'.$cid, '', $label, 2, $attrs);
+
+                    $mform->disabledIf('l'.$cid, 'c'.$cid, 'neq', 1);
+
+                    $attrs = ['size' => 6];
+                    $radioarray[] =& $mform->createElement('text', 'lockcm'.$cid, '', $attrs);
+                    $mform->setType('lockcm'.$cid, PARAM_INT);
+                    $mform->disabledIf('lockcm'.$cid, 'c'.$cid, 'neq', 1);
+                }
+
                 $padding = array('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
                 $mform->addGroup($radioarray, 'radioar', format_string($name), $padding, false);
             }
@@ -87,6 +111,20 @@ class course_ascendants_assign_form extends moodleform {
     }
 
     public function validation($data, $files = null) {
+        global $DB;
+
+        $errors = [];
+
+        $cmidkeys = preg_grep('/lockcm\\d+/', array_keys($data));
+        if (!empty($cmidkeys)) {
+            foreach ($cmidkeys as $k) {
+                if ($data[$k] && !$DB->record_exists('course_modules', ['id' => $data[$k]])) {
+                    $errors[$k] = get_string('badcmid', 'block_course_ascendants');
+                }
+            }
+        }
+
+        return $errors;
     }
 }
 

@@ -30,7 +30,7 @@ function block_course_ascendants_supports_feature($feature = null, $getsupported
     static $supports;
 
     if (!during_initial_install()) {
-    $config = get_config('block_course_ascendants');
+        $config = get_config('block_course_ascendants');
     }
 
     if (!isset($supports)) {

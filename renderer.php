@@ -46,7 +46,7 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
         $currentlockstate = $theblock->islocked();
 
         $template = new StdClass;
-        $template->hiddenclass = (!empty($course->visible)) ? 'shadow' : '';
+        $template->hiddenclass = (empty($course->visible)) ? 'shadow' : '';
 
         if (!empty($this->config->stringlimit)) {
             $template->fullname = shorten_text(format_string($course->fullname), $theblock->config->stringlimit);
@@ -106,11 +106,16 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
                     $template->completionicon = $this->output->pix_icon('completed', $completedstr, 'block_course_ascendants');
                 } else {
                     $template->completionicon = $this->output->pix_icon('notcompleted', $enrolledstr, 'block_course_ascendants');
-                    $theblock->lock();
+                    if ($theblock->can_lock($course)) {
+                        // check some special completion rules such as course_modules bound completion.
+                        $theblock->lock();
+                    }
                 }
             } else {
                 $template->completionicon = $this->output->pix_icon('notvisited', $unenrolledstr, 'block_course_ascendants');
-                $theblock->lock();
+                if ($theblock->can_lock($course)) {
+                    $theblock->lock();
+                }
             }
         }
 
@@ -125,8 +130,24 @@ class block_course_ascendants_renderer extends plugin_renderer_base {
         $targetcoursecontext = context_course::instance($course->id);
         if (has_capability('moodle/course:manageactivities', $targetcoursecontext)) {
             $template->canedit = true;
+
+            // Add lock indicators.
+            $this->add_lock_indicators($template, $course);
         }
 
         return $template;
+    }
+
+    protected function add_lock_indicators(&$template, $course) {
+        switch ($course->locktype) {
+            case 1: {
+                $template->lockindicator = $this->output->pix_icon('t/lock', get_string('courselock', 'block_course_ascendants'), 'moodle').' '.get_string('course');
+                break;
+            }
+            case 2: {
+                $template->lockindicator = $this->output->pix_icon('t/lock', get_string('cmlockon', 'block_course_ascendants'), 'moodle').' '.$course->lockcmid;
+                break;
+            }
+        }
     }
 }
