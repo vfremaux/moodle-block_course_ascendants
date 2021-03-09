@@ -1,0 +1,87 @@
+{{!
+    This file is part of The Course Ascendants Block
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_course_ascendants/courserow
+
+    Block template for displaying the course row in course ascendants lists.
+
+    Classes required for JS:
+    * none
+
+    Context variables required for this template:
+    * undocumented @see block's renderer for reference
+}}
+<!-- block_course_ascendants/courserow -->
+<div class="course-ascendant-coursebox coursebox {{hiddenclass}}">
+    <div class="info {{showdescclass}}">
+        <div class="name">
+            {{#islink}}
+            <a title="{{shortname}}" href="{{{courseurl}}}" class="coursename">{{fullname}}</a>
+            {{/islink}}
+            {{^islink}}
+            <span title="{{shortname}}" class="coursename">{{fullname}}</span>
+            {{/islink}}
+            {{#canedit}}
+            <a title="{{shortname}}" href="{{{courseurl}}}" target="_blank" class="coursename">({{#str}}gotocourse, block_course_ascendants{{/str}})</a>
+            {{/canedit}}
+            {{#arrangeinternalorder}}
+            {{#canup}}
+            <a class="cmd" href="{{{upurl}}}">{{{uppix}}}</a>
+            {{/canup}}
+            {{^canup}}
+            <span class="course-ascendants shadow">{{{uppix}}}</span>
+            {{/canup}}
+
+            {{#candown}}
+            <a class="cmd" href="{{{downurl}}}">{{{downpix}}}</a>
+            {{/candown}}
+            {{^candown}}
+            <span class="course-ascendants shadow">{{{downpix}}}</span>
+            {{/candown}}
+            {{/arrangeinternalorder}}
+
+        </div>
+
+        {{^showdescription}}
+        {{#hascompletion}}
+        <div class="block-ascendants-module-completion">
+            {{#lockindicator}}
+            <span class="block_ascendants-info">{{{lockindicator}}}</span>
+            {{/lockindicator}}
+            {{{completionicon}}}
+        </div>
+        {{/hascompletion}}
+        {{/showdescription}}
+ 
+        {{#showdescription}}
+        <div class="block-ascendants course-description">
+            {{{description}}}
+
+            {{#hascompletion}}
+            <div class="block-ascendants-module-completion">
+                {{#lockindicator}}
+                <span class="block_ascendants-info">{{{lockindicator}}}</span>
+                {{/lockindicator}}
+                {{{completionicon}}}
+            </div>
+            {{/hascompletion}}
+
+        </div>
+        {{/showdescription}}
+    </div>
+</div>
+<!-- /block_course_ascendants/courserow -->

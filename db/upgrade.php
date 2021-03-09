@@ -67,7 +67,99 @@ function xmldb_block_course_ascendants_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2015111414, 'course_ascendants');
     }
 
+    if ($oldversion < 2020082500) {
+        // Change name of courseid to metaid, keeping values, then add new courseid field.
+        $table = new xmldb_table('block_course_ascendants');
+        $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
+        $targetfield = new xmldb_field('metaid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
+
+        if (!$dbman->field_exists($table, $targetfield)) {
+            $dbman->rename_field($table, $field, 'metaid');
+
+            // Define field to add.
+            $field = new xmldb_field('courseid');
+            $field->set_attributes(XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, 0, 'id');
+
+            // Launch add field.
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+
+            // Add non unique index on courseid.
+            $index = new xmldb_index('mdl_bycourse_uix', XMLDB_INDEX_NOTUNIQUE, ['courseid']);
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+
+            // Recalculate courseid value from blockid.
+            block_ascendants_recalculate_course_ids();
+        }
+
+        // Course_ascendants savepoint reached.
+        upgrade_block_savepoint(true, 2020082500, 'course_ascendants');
+    }
+
+    if ($oldversion < 2020121102) {
+        // Course_ascendants savepoint reached.
+        $table = new xmldb_table('block_course_ascendants');
+        $field = new xmldb_field('locktype', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0, 'metaid');
+
+        // Launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lockcmid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, 0, 'locktype');
+
+        // Launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2020121102, 'course_ascendants');
+    }
+
     return $result;
+}
+
+function block_ascendants_recalculate_course_ids() {
+    global $DB;
+    static $blockcaches = [];
+    static $deletedblockcaches = [];
+
+    // After transformation, scan all instances of bindings and calculate the courseid
+    $bindings = $DB->get_records('block_course_ascendants');
+
+    $a = new StdClass;
+    $a->total = count($bindings);
+    $a->done = 0;
+
+    if ($bindings) {
+        $pbar = new progress_bar('feedcourseids', 500, true);
+        foreach ($bindings as $binding) {
+            if (!array_key_exists($binding->blockid, $blockcaches)) {
+                $bi = $DB->get_record('block_instances', ['id' => $binding->blockid]);
+                if (!$bi) {
+                    // Block has been lost. Loose also the binding record.
+                    if (!array_key_exists($binding->blockid, $deletedblockcache)) {
+                        $DB->delete_records('block_course_ascendants', ['blockid' => $binding->blockid]);
+                        $deletedblockcache[$binding->blockid] = true;
+                    }
+                    continue;
+                }
+
+                $blockcaches[$binding->blockid] = $bi;
+            }
+
+            // Resolve the course
+            $context = context::instance_by_id($blockcaches[$binding->blockid]->parentcontextid);
+            $courseid = $context->instanceid;
+            $binding->courseid = $courseid;
+            $DB->update_record('block_course_ascendants', $binding);
+            $a->done++;
+            $pbar->update($a->done, $a->total, get_string('feedcourseids', 'block_course_ascendants', $a));
+        }
+    }
 }
 
 function block_ascendants_feed_instances() {

@@ -1,0 +1,54 @@
+
+
+<!-- block_course_ascendants/coursebox -->
+<div>
+    <div class="block-ascendants-promowrap">
+        <div class="block-ascendants-fp-coursebox {{hiddenclass}} {{withopacityeffect}} {{withhaloeffect}}" {{{heightstyle}}}>
+            <div class="block-ascendants-fp-coursethumb">
+                <div class="block-ascendants-fp-courseinfo">
+                    <h3>
+                        <a href="{{{courseurl}}}" data-toggle="tooltip" data-placement="bottom" data-shortname="{{{shortname}}}">
+                            <img aria-hidden="true" src="{{{imgurl}}}">
+                            <div class="coursetitle">{{trimtitle}}</div>
+                            <div class="course-overlay">
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            </div>
+                         </a>
+                        {{#canedit}}
+                        <a title="{{shortname}}" href="{{{courseurl}}}" target="_blank" class="coursename">({{#str}}gotocourse, block_course_ascendants{{/str}})</a>
+                        {{/canedit}}
+                        {{#arrangeinternalorder}}
+                        {{#canup}}
+                        <a class="cmd" href="{{{upurl}}}">{{{uppix}}}</a>
+                        {{/canup}}
+                        {{^canup}}
+                        <span class="course-ascendants shadow">{{{uppix}}}</span>
+                        {{/canup}}
+
+                        {{#candown}}
+                        <a class="cmd" href="{{{downurl}}}">{{{downpix}}}</a>
+                        {{/candown}}
+                        {{^candown}}
+                        <span class="course-ascendants shadow">{{{downpix}}}</span>
+                        {{/candown}}
+                        {{/arrangeinternalorder}}
+                    </h3>
+                </div>
+                {{#showdescription}}
+                <div class="block-ascendants-description">{{{description}}}</div>
+                {{/showdescription}}
+            </div>
+
+            {{#hascompletion}}
+            <div class="block-ascendants-module-completion">
+                {{#lockindicator}}
+                <span class="block_ascendants-info">{{{lockindicator}}}</span>
+                {{/lockindicator}}
+                {{{completionicon}}}
+            </div>
+            {{/hascompletion}}
+
+        </div>
+    </div>
+</div>
+<!-- /block_course_ascendants/coursebox -->

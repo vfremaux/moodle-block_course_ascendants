@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->dirroot.'/blocks/course_ascendants/lib.php');
 
 class block_course_ascendants_edit_form extends block_edit_form {
 
@@ -35,62 +36,81 @@ class block_course_ascendants_edit_form extends block_edit_form {
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
-        $mform->addElement('checkbox', 'config_showcategories', get_string('configshowcategories', 'block_course_ascendants'));
+        $mform->addElement('text', 'config_title', get_string('alttitle', 'block_course_ascendants'));
+        $mform->setType('config_title', PARAM_MULTILANG);
+        $mform->addHelpButton('config_title', 'alttitle', 'block_course_ascendants');
 
-        $label = get_string('configshowdescription', 'block_course_ascendants');
-        $mform->addElement('checkbox', 'config_showdescription', $label);
-        $mform->addHelpButton('config_showdescription', 'configshowdescription', 'block_course_ascendants');
+        $mform->addElement('advcheckbox', 'config_showcategories', get_string('showcategories', 'block_course_ascendants'));
+
+        $label = get_string('showdescription', 'block_course_ascendants');
+        $mform->addElement('advcheckbox', 'config_showdescription', $label);
+        $mform->addHelpButton('config_showdescription', 'showdescription', 'block_course_ascendants');
 
         $catoptions = $DB->get_records_menu('course_categories', null, 'sortorder', 'id,name');
-        $label = get_string('configcoursescopestartcategory', 'block_course_ascendants');
+        $label = get_string('coursescopestartcategory', 'block_course_ascendants');
         $mform->addElement('select', 'config_coursescopestartcategory', $label, $catoptions);
-        $mform->addHelpButton('config_coursescopestartcategory', 'configcoursescopestartcategory', 'block_course_ascendants');
+        $mform->addHelpButton('config_coursescopestartcategory', 'coursescopestartcategory', 'block_course_ascendants');
 
         $arrangeopts = array('0' => get_string('bycats', 'block_course_ascendants'),
             '1' => get_string('byplan', 'block_course_ascendants'));
-        $mform->addElement('select', 'config_arrangeby', get_string('configarrangeby', 'block_course_ascendants'), $arrangeopts);
-        $mform->setDefault('configèarrangeby', @$config->arrangeby);
+        $label = get_string('arrangeby', 'block_course_ascendants');
+        $mform->addElement('select', 'config_arrangeby', $label, $arrangeopts);
+        $mform->setDefault('configèarrangeby', @$config->defaultarrangeby);
 
-        $label = get_string('configstringlimit', 'block_course_ascendants');
+        if (block_course_ascendants_supports_feature('display/tiles')) {
+            $options = [
+                'list' => get_string('list', 'block_course_ascendants'),
+                'tiles' => get_string('tiles', 'block_course_ascendants') 
+            ];
+            $mform->addElement('select', 'config_coursedisplaymode', get_string('coursedisplaymode', 'block_course_ascendants'), $options);
+            if (empty($config->defaultcoursedisplaymode)) {
+                $config->defaultcoursedisplaymode = 'list';
+            }
+            $mform->setDefault('config_displaymode', $config->defaultcoursedisplaymode);
+        }
+
+        $label = get_string('stringlimit', 'block_course_ascendants');
         $mform->addElement('text', 'config_stringlimit', $label, array('size' => 4, 'maxlength' => 3));
         $mform->setType('config_stringlimit', PARAM_INT);
-        $mform->addHelpButton('config_stringlimit', 'configstringlimit', 'block_course_ascendants');
+        $mform->addHelpButton('config_stringlimit', 'stringlimit', 'block_course_ascendants');
 
-        $label = get_string('configcatstringfilter', 'block_course_ascendants');
+        $label = get_string('completionlocked', 'block_course_ascendants');
+        $mform->addElement('advcheckbox', 'config_completionlocked', $label);
+        $mform->setType('config_completionlocked', PARAM_BOOL);
+        $mform->addHelpButton('config_completionlocked', 'completionlocked', 'block_course_ascendants');
+
+        $label = get_string('catstringfilter', 'block_course_ascendants');
         $mform->addElement('text', 'config_catstringfilter', $label, array('size' => 40, 'maxlength' => 80));
         $mform->setType('config_catstringfilter', PARAM_TEXT);
-        $mform->addHelpButton('config_catstringfilter', 'configcatstringfilter', 'block_course_ascendants');
+        $mform->addHelpButton('config_catstringfilter', 'catstringfilter', 'block_course_ascendants');
 
-        $label = get_string('configcreatecoursegroup', 'block_course_ascendants');
-        $mform->addElement('checkbox', 'config_createcoursegroup', $label);
-        $mform->addHelpButton('config_createcoursegroup', 'configcreatecoursegroup', 'block_course_ascendants');
-        $mform->setDefault('config_createcoursegroup', $config->defaultcreatecoursegroup);
+        if (block_course_ascendants_supports_feature('group/propagate')) {
 
-        $label = get_string('configcoursegroupname', 'block_course_ascendants');
-        $mform->addElement('text', 'config_coursegroupname', $label, array('size' => 40));
-        $mform->setType('config_coursegroupname', PARAM_TEXT);
-        $mform->addHelpButton('config_coursegroupname', 'configcoursegroupname', 'block_course_ascendants');
+            $groupoptions[0] = get_string('no');
+            $groupoptions[1] = get_string('globalcoursegroup', 'block_course_ascendants');
+            $groupoptions[2] = get_string('propagateexistinggroups', 'block_course_ascendants');
 
-        $filter = $config->coursegroupnamefilter;
-        switch ($config->coursegroupnamebase) {
-            case 'shortname':
-                $namesource = $COURSE->shortname;
-                break;
+            $label = get_string('createcoursegroup', 'block_course_ascendants');
+            $mform->addElement('select', 'config_createcoursegroup', $label, $groupoptions);
+            $mform->addHelpButton('config_createcoursegroup', 'createcoursegroup', 'block_course_ascendants');
+            $mform->setDefault('config_createcoursegroup', $config->defaultcreatecoursegroup);
 
-            case 'idnumber':
-                $namesource = $COURSE->idnumber;
-                break;
+            $namebaseoptions[0] = get_string('fullname');
+            $namebaseoptions[1] = get_string('shortname');
+            $namebaseoptions[2] = get_string('idnumber');
 
-            default:
-                $namesource = $COURSE->fullname;
-                break;
+            $label = get_string('coursegroupnamebase', 'block_course_ascendants');
+            $mform->addElement('select', 'config_coursegroupnamebase', $label, $namebaseoptions);
+            $mform->setDefault('config_coursegroupnamebase', $config->defaultcoursegroupnamebase);
+            $mform->addHelpButton('config_coursegroupnamebase', 'coursegroupnamebase', 'block_course_ascendants');
+            $mform->disabledIf('config_coursegroupnamebase', 'config_createcoursegroup', 'neq', 1);
+
+            $label = get_string('coursegroupnamefilter', 'block_course_ascendants');
+            $mform->addElement('text', 'config_coursegroupnamefilter', $label, $namebaseoptions);
+            $mform->setDefault('config_coursegroupnamefilter', $config->defaultcoursegroupnamefilter);
+            $mform->addHelpButton('config_coursegroupnamefilter', 'coursegroupnamefilter', 'block_course_ascendants');
+            $mform->setType('config_coursegroupnamefilter', PARAM_TEXT);
+            $mform->disabledIf('config_coursegroupnamefilter', 'config_createcoursegroup', 'neq', 1);
         }
-
-        if ($filter) {
-            if (preg_match($filter, $namesource, $matches)) {
-                $namesource = $matches[1];
-            }
-        }
-        $mform->setDefault('config_coursegroupname', $namesource);
     }
 }
