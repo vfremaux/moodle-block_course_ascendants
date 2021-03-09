@@ -7,15 +7,19 @@
     <TABLE NAME="block_course_ascendants" COMMENT="Default comment for block_course_ascendants, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Master course id"/>
         <FIELD NAME="blockid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Block instance id"/>
-        <FIELD NAME="courseid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Ascendant course id"/>
+        <FIELD NAME="metaid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Ascendant meta course id"/>
+        <FIELD NAME="locktype" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Type of completion lock"/>
+        <FIELD NAME="lockcmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If lock on module, the cm id"/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Ordering in course ascendants"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="ix_unique_course_block" UNIQUE="true" FIELDS="blockid, courseid" COMMENT="Unique assign of course in an instance"/>
+        <INDEX NAME="ix_master_course_block" UNIQUE="true" FIELDS="courseid" COMMENT="Index on master course"/>
+        <INDEX NAME="ix_unique_course_block" UNIQUE="true" FIELDS="blockid, metaid" COMMENT="Unique assign of meta course in an instance"/>
       </INDEXES>
     </TABLE>
   </TABLES>
