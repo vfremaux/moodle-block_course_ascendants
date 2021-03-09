@@ -41,7 +41,6 @@ select.selcourses {
 .course-ascendant-coursebox .description-not-visible {
     display: flex;
     justify-content: space-between;
-    width: 100%;
 }
 
 .block-ascendants-course-grid {
@@ -174,9 +173,4 @@ select.selcourses {
         height: 130%;
         opacity: 0;
     }
-}
-
-.block_ascendants-info {
-    color: white;
-    background-color: #5bc0de;
 }

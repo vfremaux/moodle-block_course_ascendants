@@ -84,6 +84,7 @@ class assign_controller {
                 foreach ($metaids as $cid) {
                     $metaid = str_replace('c', '', $cid);
                     $metastate = $dataarr[$cid];
+                    echo "$metaid/$metastate ";
 
                     // inverts meaning of $metiad/courseid for enrol as we enrol in the meta course.
                     $params = array('enrol' => 'meta', 'customint1' => $this->data->courseid, 'courseid' => $metaid);
@@ -112,19 +113,11 @@ class assign_controller {
                             $localrec->blockid = $this->data->id;
                             $localrec->courseid = $this->data->courseid; // the cursus id
                             $localrec->metaid = $metaid; // the learning ascendant module.
-                            $locktypekey = 'l'.$metaid;
-                            $localrec->locktype = 0 + @$dataarr[$locktypekey];
-                            $lockcmkey = 'lockcm'.$metaid;
-                            $localrec->lockcmid = 0 + @$dataarr[$lockcmkey];
                             $localrec->sortorder = $neworder;
                             $params = array('blockid' => $this->data->id, 'metaid' => $metaid);
-                            if (!$oldrec = $DB->get_record('block_course_ascendants', $params)) {
+                            if (!$DB->record_exists('block_course_ascendants', $params)) {
                                 $DB->insert_record('block_course_ascendants', $localrec);
                                 $neworder++;
-                            } else {
-                                $localrec->id = $oldrec->id;
-                                $localrec->sortorder = $oldrec->sortorder;
-                                $DB->update_record('block_course_ascendants', $localrec);
                             }
                         }
                     } else {
@@ -148,10 +141,6 @@ class assign_controller {
                             $localrec->blockid = $this->data->id;
                             $localrec->courseid = $this->data->courseid; // The cursus id
                             $localrec->metaid = $metaid; // The ascendant learning module id
-                            $locktypekey = 'l'.$metaid;
-                            $localrec->locktype = 0 + @$dataarr[$locktypekey];
-                            $lockcmkey = 'lockcm'.$metaid;
-                            $localrec->lockcmid = 0 + @$dataarr[$lockcmkey];
                             $localrec->sortorder = $neworder;
                             if (!$DB->record_exists('block_course_ascendants', array('blockid' => $this->data->id, 'metaid' => $metaid))) {
                                 $DB->insert_record('block_course_ascendants', $localrec);
