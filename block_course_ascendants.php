@@ -25,11 +25,21 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/blocks/course_ascendants/listlib.php');
+require_once($CFG->dirroot.'/blocks/course_ascendants/lib.php');
 
 class block_course_ascendants extends block_base {
 
+    protected $islocked;
+
     public function init() {
         $this->title = get_string('title', 'block_course_ascendants');
+        $this->islocked = false;
+    }
+
+    public function specialization() {
+        if (!empty($this->config) && !empty($this->config->title)) {
+            $this->title = format_string($this->config->title);
+        }
     }
 
     public function has_config() {
@@ -45,21 +55,8 @@ class block_course_ascendants extends block_base {
     }
 
     public function instance_allow_multiple() {
-        return false;
+        return true;
     }
-
-    /**
-     * Serialize and store config data
-     */
-    public function instance_config_save($data, $nolongerused = false) {
-
-        if (!isset($data->showdescription)) {
-            $data->showdescription = 0;
-        }
-
-        parent::instance_config_save($data, false);
-    }
-
 
     public function get_content() {
         global $COURSE, $PAGE, $USER;
@@ -70,6 +67,10 @@ class block_course_ascendants extends block_base {
 
         if (!isset($this->config)) {
             $this->config = new StdClass();
+        }
+
+        if (!empty($this->config->completionlocked)) {
+            $this->islocked = false;
         }
 
         if (!isset($this->config->showcategories)) {
@@ -95,9 +96,9 @@ class block_course_ascendants extends block_base {
 
         // Fetch direct ascendants that are metas who point the current course as descendant.
         $categories = array();
-        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories);
+        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories, false, true);
 
-        $renderer = $PAGE->get_renderer('block_course_ascendants');
+        $renderer = $this->get_renderer();
 
         $this->content = new stdClass;
         $this->content->footer = '';
@@ -138,17 +139,22 @@ class block_course_ascendants extends block_base {
                         $this->content->text .= '<div class="category"><b>'.$filteredprevcat.'</b></div>';
                     }
                     if (!empty($cat->courses)) {
-                        $this->content->text .= '<div clas="courses">';
-                        foreach ($cat->courses as $ascendant) {
-                            $asccontext = context_course::instance($ascendant->id);
-                            if (!is_enrolled($asccontext, $USER->id, '', true) &&
-                                    !is_viewing($asccontext, $USER->id) &&
-                                            !is_siteadmin($USER->id)) {
-                                continue;
+                        if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles') {
+                            // @see Needs pro renderer. 
+                            $this->content->text .= $renderer->coursegrid($cat->courses, $this, $mincourse, $maxcourse);
+                        } else {
+                            $this->content->text .= '<div clas="courses">';
+                            foreach ($cat->courses as $ascendant) {
+                                $asccontext = context_course::instance($ascendant->id);
+                                if (!is_enrolled($asccontext, $USER->id, '', true) &&
+                                        !is_viewing($asccontext, $USER->id) &&
+                                                !is_siteadmin($USER->id)) {
+                                    continue;
+                                }
+                                $this->content->text .= $renderer->courserow($ascendant, $this, $mincourse, $maxcourse);
                             }
-                            $this->content->text .= $renderer->courserow($ascendant, $this, $mincourse, $maxcourse);
+                            $this->content->text .= '</div>';
                         }
-                        $this->content->text .= '</div>';
                     }
                 }
             }
@@ -160,8 +166,13 @@ class block_course_ascendants extends block_base {
 
                 $this->content->text .= '<div class="courses">';
                 if (!empty($flatcourses)) {
-                    foreach ($flatcourses as $c) {
-                        $this->content->text .= $renderer->courserow($c, $this, $mincourse, $maxcourse);
+                    if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles') {
+                        // @see Needs pro renderer. 
+                        $this->content->text .= $renderer->coursegrid($flatcourses, $this, $mincourse, $maxcourse);
+                    } else {
+                        foreach ($flatcourses as $c) {
+                            $this->content->text .= $renderer->courserow($c, $this, $mincourse, $maxcourse);
+                        }
                     }
                 }
                 $this->content->text .= '</div>';
@@ -180,6 +191,10 @@ class block_course_ascendants extends block_base {
 
     /**
      * Reads category tree in correct order.
+     * @pparam int $catstart
+     * @pparam arrayref &$categories
+     * @pparam bool $seeunbound
+     * @pparam bool $seeinvisible
      */
     public function read_category_tree($catstart, &$categories, $seeunbound = false, $seeinvisible = false) {
         global $DB;
@@ -187,7 +202,8 @@ class block_course_ascendants extends block_base {
 
         if ($catstart != 0 && $level == 0) {
             $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            if (!$cat || (!$cat->visible && !$seeinvisible)) {
+            $startcatcontext = context_coursecat::instance($catstart);
+            if (!$cat || (!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $startcatcontext) && !$seeinvisible)) {
                 return;
             }
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {
@@ -195,6 +211,7 @@ class block_course_ascendants extends block_base {
                 foreach ($ascendants as $asc) {
                     $context = context_course::instance($asc->id);
                     if ($asc->visible || has_capability('moodle/course:viewhiddencourses', $context) || $seeinvisible) {
+                        $asc->visible = $asc->visible && $cat->visible;
                         $cat->courses[$asc->id] = $asc;
                     }
                 }
@@ -219,6 +236,7 @@ class block_course_ascendants extends block_base {
                     foreach ($ascendants as $asc) {
                         $context = context_course::instance($asc->id);
                         if ($asc->visible || has_capability('moodle/course:viewhiddencourses', $context) || $seeinvisible) {
+                            $asc->visible = $asc->visible && $cat->visible;
                             $cat->courses[$asc->id] = $asc;
                         }
                     }
@@ -263,13 +281,15 @@ class block_course_ascendants extends block_base {
                     bca.sortorder as localorder,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled,
-                    e.id as isbound
+                    bca.locktype,
+                    bca.lockcmid,
+                    bca.id as isbound
                 FROM
                     {course} c
                 LEFT JOIN
                     {block_course_ascendants} bca
                 ON
-                    bca.courseid = c.id AND
+                    bca.metaid = c.id AND
                     bca.blockid = ?
                 LEFT JOIN
                    {course_completions} cc
@@ -291,6 +311,8 @@ class block_course_ascendants extends block_base {
                 WHERE
                     1 = 1
                     $catclause
+                GROUP BY
+                    c.id
             ";
             $ascendants = $DB->get_records_sql($sql, $params);
         } else {
@@ -307,6 +329,8 @@ class block_course_ascendants extends block_base {
                     c.visible,
                     c.enablecompletion,
                     bca.sortorder as localorder,
+                    bca.locktype,
+                    bca.lockcmid,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled
                 FROM
@@ -316,10 +340,10 @@ class block_course_ascendants extends block_base {
                 ON
                     c.id = e.courseid AND
                     e.enrol = 'meta'
-                LEFT JOIN
+                JOIN
                     {block_course_ascendants} bca
                 ON
-                    bca.courseid = c.id AND
+                    bca.metaid = c.id AND
                     bca.blockid = ?
                 LEFT JOIN
                    {course_completions} cc
@@ -334,6 +358,8 @@ class block_course_ascendants extends block_base {
                 WHERE
                     e.customint1 = ? AND status = 0
                     $catclause
+                GROUP BY
+                    c.id
             ";
             $ascendants = $DB->get_records_sql($sql, $params);
         }
@@ -400,6 +426,70 @@ class block_course_ascendants extends block_base {
             $groupobj->timemodified = time();
             $fullgroupid = $DB->insert_record('groups', $groupobj);
         }
+    }
+
+    public function islocked() {
+        return $this->islocked;
+    }
+
+    public function lock() {
+        $this->islocked = true;
+    }
+
+    public function unlock() {
+        $this->islocked = false;
+    }
+
+    public function can_lock($course) {
+        global $DB;
+
+        if ($course->locktype == 0) {
+            return false;
+        }
+
+        if ($course->locktype == 2 && $course->lockcmid) {
+            // If course module assigned to this meta is completed and lock is driven by cm completion, must pass its turn to lock.
+            if ($state = $DB->get_field('course_modules_completion', 'completionstate', ['userid' => $USER->id, 'coursemoduleid' => $course->lockcmid])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function get_renderer() {
+        global $PAGE, $CFG;
+
+        if ('pro' == block_course_ascendants_supports_feature()) {
+            include_once($CFG->dirroot.'/blocks/course_ascendants/pro/renderer.php');
+            $renderer = new block_course_ascendants_renderer_extended($PAGE, '');
+        } else {
+            $renderer = $PAGE->get_renderer('block_course_ascendants');
+        }
+
+        return $renderer;
+    }
+
+    /**
+     * Resolves some forced value for box heights.
+     */
+    public function get_forced_height() {
+        global $CFG;
+
+        $config = get_config('block_course_ascendants');
+
+        if (empty($config->courseboxheight)) {
+            $config->courseboxheight = '450px';
+        }
+
+        $height = $config->courseboxheight;
+
+        if (is_dir($CFG->dirroot.'/local/my')) {
+            $config = get_config('local_my');
+            $height = $config->courseboxheight;
+        }
+
+        return $height;
     }
 }
 
