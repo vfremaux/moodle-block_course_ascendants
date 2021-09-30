@@ -59,7 +59,7 @@ class block_course_ascendants extends block_base {
     }
 
     public function get_content() {
-        global $COURSE, $PAGE, $USER;
+        global $COURSE, $PAGE, $USER, $DB;
 
         if ($this->content !== null) {
             return $this->content;
@@ -96,13 +96,18 @@ class block_course_ascendants extends block_base {
 
         // Fetch direct ascendants that are metas who point the current course as descendant.
         $categories = array();
-        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories, false, true);
-
-        $renderer = $this->get_renderer();
 
         $this->content = new stdClass;
         $this->content->footer = '';
         $this->content->text = '';
+
+        if (!$DB->record_exists('course_categories', ['id' => @$this->config->coursescopestartcategory])) {
+            return $this->content;
+        }
+
+        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories, false, true);
+
+        $renderer = $this->get_renderer();
 
         $mincourse = 0;
         $maxcourse = 0;
@@ -202,11 +207,16 @@ class block_course_ascendants extends block_base {
 
         if ($catstart != 0 && $level == 0) {
             $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            $startcatcontext = context_coursecat::instance($catstart);
-            if (!$cat || (!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $startcatcontext) && !$seeinvisible)) {
+            if (!$cat) {
                 return;
             }
+            $startcatcontext = context_coursecat::instance($catstart);
+            if ((!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $startcatcontext) && !$seeinvisible)) {
+                return;
+            }
+
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {
+
                 $cat->courses = array();
                 foreach ($ascendants as $asc) {
                     $context = context_course::instance($asc->id);

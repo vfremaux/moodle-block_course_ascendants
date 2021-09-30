@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/group/lib.php');
 
 if (!function_exists('debug_trace')) {
-    function debug_trace($message, $label = '') {
+    function debug_trace($msg, $tracelevel = 0, $label = '', $backtracelevel = 1) {
         assert(1);
     }
 }
@@ -46,7 +46,7 @@ class block_course_ascendants_observer {
         global $DB;
 
         // Am i in a course_ascendants enabled course.
-        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->groupid]);
+        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->objectid]);
         $coursecontext = context_course::instance($courseid);
         $blockinstances = $DB->get_records('block_instances', ['blockname' => 'course_ascendants', 'parentcontextid' => $coursecontext->id]);
 
@@ -54,7 +54,7 @@ class block_course_ascendants_observer {
             return;
         }
 
-        $group = $DB->get_record('groups', ['groupid' => $event->groupid]);
+        $group = $DB->get_record('groups', ['groupid' => $event->objectid]);
 
         foreach ($blockinstances as $bi) {
             // Is the course_ascendants enabled for group propagation.
