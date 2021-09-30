@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/group/lib.php');
 
 if (!function_exists('debug_trace')) {
-    function debug_trace($message, $label = '') {
+    function debug_trace($msg, $tracelevel = 0, $label = '', $backtracelevel = 1) {
         assert(1);
     }
 }
@@ -46,7 +46,7 @@ class block_course_ascendants_observer {
         global $DB;
 
         // Am i in a course_ascendants enabled course.
-        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->groupid]);
+        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->objectid]);
         $coursecontext = context_course::instance($courseid);
         $blockinstances = $DB->get_records('block_instances', ['blockname' => 'course_ascendants', 'parentcontextid' => $coursecontext->id]);
 
@@ -54,7 +54,7 @@ class block_course_ascendants_observer {
             return;
         }
 
-        $group = $DB->get_record('groups', ['groupid' => $event->groupid]);
+        $group = $DB->get_record('groups', ['groupid' => $event->objectid]);
 
         foreach ($blockinstances as $bi) {
             // Is the course_ascendants enabled for group propagation.
@@ -72,17 +72,67 @@ class block_course_ascendants_observer {
 
             foreach ($ascendants as $asc) {
                 // Check and copy group definitions in ascendants (create them if needed).
-                if (!$oldgroup = $DB->get_record('groups', ['name' => $group->name, 'courseid' => $asc->id])) {
+                if (!$oldgroup = $DB->get_record('groups', ['name' => $group->name, 'courseid' => $asc->metaid])) {
                     $newgroup = clone($group);
-                    $newgroup->courseid = $asc->id;
+                    unset($newgroup->id);
+                    $newgroup->courseid = $asc->metaid;
+                    $newgroup->enrolmentkey = '';
+                    debug_trace("Creating ascendant group {$newgroup->name} ", TRACE_DEBUG_FINE);
+                    debug_trace($newgroup, TRACE_DEBUG);
                     $ascgroupid = groups_create_group($newgroup);
                 } else {
+                    debug_trace("Using old ascendant group {$oldgroup->name} ", TRACE_DEBUG_FINE);
                     $ascgroupid = $oldgroup->id;
                 }
 
                 // Add membership in those groups.
                 if (!$oldmembership = $DB->get_record('groups_members', ['groupid' => $ascgroupid, 'userid' => $event->relateduserid])) {
+                    debug_trace("Registering {$event->relateduserid} as member {$ascgroupid} ", TRACE_DEBUG_FINE);
                     groups_add_member($ascgroupid, $event->relateduserid, 'block_course_ascendants', $bi->id);
+                }
+            }
+        }
+    }
+
+    public static function on_group_member_removed(\core\event\group_member_removed $event) {
+        global $DB;
+
+        debug_trace("Group memnber removed received ", TRACE_DEBUG_FINE);
+        // Am i in a course_ascendants enabled course.
+        $coursecontext = context_course::instance($event->courseid);
+        $blockinstances = $DB->get_records('block_instances', ['blockname' => 'course_ascendants', 'parentcontextid' => $coursecontext->id]);
+
+        if (!$blockinstances) {
+            debug_trace("No course ascendants in context ", TRACE_DEBUG_FINE);
+            return;
+        }
+
+        debug_trace("Has course ascendants in context ", TRACE_DEBUG_FINE);
+        $group = $DB->get_record('groups', ['id' => $event->objectid]);
+
+        foreach ($blockinstances as $bi) {
+            // Is the course_ascendants enabled for group propagation.
+            $config = unserialize(base64_decode($bi->configdata));
+
+            if ($config->createcoursegroup != 2) {
+                debug_trace("Course ascendants {$bi->id} not configured for propagation ", TRACE_DEBUG_FINE);
+                continue;
+            }
+
+            // Get ascendants courses.
+            $ascendants = $DB->get_records('block_course_ascendants', ['blockid' => $bi->id]);
+            if (!$ascendants) {
+                debug_trace("Course ascendants with no moduled ", TRACE_DEBUG_FINE);
+                continue;
+            }
+
+            debug_trace("Processing ascendants on {$bi->id}  ", TRACE_DEBUG_FINE);
+            foreach ($ascendants as $asc) {
+                // Check and copy group definitions in ascendants (create them if needed).
+                if ($oldgroup = $DB->get_record('groups', ['name' => $group->name, 'courseid' => $asc->metaid])) {
+                    // Remove membership in those groups.
+                    debug_trace("Unregistering {$event->relateduserid} from group {$oldgroup->id} ", TRACE_DEBUG_FINE);
+                    groups_remove_member($oldgroup->id, $event->relateduserid);
                 }
             }
         }

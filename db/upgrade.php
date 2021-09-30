@@ -99,6 +99,26 @@ function xmldb_block_course_ascendants_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2020082500, 'course_ascendants');
     }
 
+    if ($oldversion < 2020121102) {
+        // Course_ascendants savepoint reached.
+        $table = new xmldb_table('block_course_ascendants');
+        $field = new xmldb_field('locktype', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0, 'metaid');
+
+        // Launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('lockcmid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, 0, 'locktype');
+
+        // Launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2020121102, 'course_ascendants');
+    }
+
     return $result;
 }
 

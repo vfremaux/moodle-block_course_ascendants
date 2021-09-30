@@ -59,7 +59,7 @@ class block_course_ascendants extends block_base {
     }
 
     public function get_content() {
-        global $COURSE, $PAGE, $USER;
+        global $COURSE, $PAGE, $USER, $DB;
 
         if ($this->content !== null) {
             return $this->content;
@@ -96,13 +96,18 @@ class block_course_ascendants extends block_base {
 
         // Fetch direct ascendants that are metas who point the current course as descendant.
         $categories = array();
-        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories, false, true);
-
-        $renderer = $this->get_renderer();
 
         $this->content = new stdClass;
         $this->content->footer = '';
         $this->content->text = '';
+
+        if (!$DB->record_exists('course_categories', ['id' => @$this->config->coursescopestartcategory])) {
+            return $this->content;
+        }
+
+        $this->read_category_tree(0 + @$this->config->coursescopestartcategory, $categories, false, true);
+
+        $renderer = $this->get_renderer();
 
         $mincourse = 0;
         $maxcourse = 0;
@@ -202,11 +207,16 @@ class block_course_ascendants extends block_base {
 
         if ($catstart != 0 && $level == 0) {
             $cat = $DB->get_record('course_categories', array('id' => $catstart), 'id,name,visible');
-            $startcatcontext = context_coursecat::instance($catstart);
-            if (!$cat || (!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $startcatcontext) && !$seeinvisible)) {
+            if (!$cat) {
                 return;
             }
+            $startcatcontext = context_coursecat::instance($catstart);
+            if ((!$cat->visible && !has_capability('moodle/category:viewhiddencategories', $startcatcontext) && !$seeinvisible)) {
+                return;
+            }
+
             if ($ascendants = $this->get_ascendants($catstart, $seeunbound)) {
+
                 $cat->courses = array();
                 foreach ($ascendants as $asc) {
                     $context = context_course::instance($asc->id);
@@ -281,6 +291,8 @@ class block_course_ascendants extends block_base {
                     bca.sortorder as localorder,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled,
+                    bca.locktype,
+                    bca.lockcmid,
                     bca.id as isbound
                 FROM
                     {course} c
@@ -311,6 +323,8 @@ class block_course_ascendants extends block_base {
                     $catclause
                 GROUP BY
                     c.id
+                ORDER BY
+                    c.sortorder
             ";
             $ascendants = $DB->get_records_sql($sql, $params);
         } else {
@@ -327,6 +341,8 @@ class block_course_ascendants extends block_base {
                     c.visible,
                     c.enablecompletion,
                     bca.sortorder as localorder,
+                    bca.locktype,
+                    bca.lockcmid,
                     cc.timecompleted as completioncompleted,
                     ula.timeaccess as completionenrolled
                 FROM
@@ -356,6 +372,8 @@ class block_course_ascendants extends block_base {
                     $catclause
                 GROUP BY
                     c.id
+                ORDER BY
+                    c.sortorder
             ";
             $ascendants = $DB->get_records_sql($sql, $params);
         }
@@ -436,6 +454,23 @@ class block_course_ascendants extends block_base {
         $this->islocked = false;
     }
 
+    public function can_lock($course) {
+        global $DB;
+
+        if ($course->locktype == 0) {
+            return false;
+        }
+
+        if ($course->locktype == 2 && $course->lockcmid) {
+            // If course module assigned to this meta is completed and lock is driven by cm completion, must pass its turn to lock.
+            if ($state = $DB->get_field('course_modules_completion', 'completionstate', ['userid' => $USER->id, 'coursemoduleid' => $course->lockcmid])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function get_renderer() {
         global $PAGE, $CFG;
 
@@ -447,6 +482,28 @@ class block_course_ascendants extends block_base {
         }
 
         return $renderer;
+    }
+
+    /**
+     * Resolves some forced value for box heights.
+     */
+    public function get_forced_height() {
+        global $CFG;
+
+        $config = get_config('block_course_ascendants');
+
+        if (empty($config->courseboxheight)) {
+            $config->courseboxheight = '450px';
+        }
+
+        $height = $config->courseboxheight;
+
+        if (is_dir($CFG->dirroot.'/local/my')) {
+            $config = get_config('local_my');
+            $height = $config->courseboxheight;
+        }
+
+        return $height;
     }
 }
 

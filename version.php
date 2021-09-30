@@ -26,11 +26,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020100500;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2020121102;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2019111200;        // Requires this Moodle version.
 $plugin->component = 'block_course_ascendants'; // Full name of the plugin (used for diagnostics).
-$plugin->release = '3.8.0 (Build 2020100500)';
+$plugin->release = '3.8.0 (Build 2020121102)';
 $plugin->maturity   = MATURITY_RC;
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.8.0002';
+$plugin->codeincrement = '3.8.0005';

@@ -10,13 +10,15 @@
         <FIELD NAME="courseid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Master course id"/>
         <FIELD NAME="blockid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Block instance id"/>
         <FIELD NAME="metaid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Ascendant meta course id"/>
+        <FIELD NAME="locktype" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Type of completion lock"/>
+        <FIELD NAME="lockcmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If lock on module, the cm id"/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Ordering in course ascendants"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="ix_master_course_block" UNIQUE="true" FIELDS="courseid" COMMENT="Index on master course"/>
+        <INDEX NAME="ix_master_course_block" UNIQUE="false" FIELDS="courseid" COMMENT="Index on master course"/>
         <INDEX NAME="ix_unique_course_block" UNIQUE="true" FIELDS="blockid, metaid" COMMENT="Unique assign of meta course in an instance"/>
       </INDEXES>
     </TABLE>

@@ -58,80 +58,9 @@ require_capability('block/course_ascendants:configure', $context);
 if (!isset($blockinstance->config)) {
     $blockinstance->config = new StdClass();
 }
+
 if (!isset($blockinstance->config->createcoursegroup)) {
     $blockinstance->config->createcoursegroup = false;
-}
-if (!isset($blockinstance->config->coursegroupnamebase)) {
-    $blockinstance->config->coursegroupnamebase = 0;
-}
-if (!isset($blockinstance->config->coursegroupnamefilter)) {
-    $blockinstance->config->coursegroupnamefilter = '';
-}
-
-if (empty($blockinstance->config->coursegroupname)) {
-    switch($blockinstance->config->coursegroupnamebase) {
-        case 0 :
-            $coursebase = $COURSE->fullname;
-            break;
-
-        case 1:
-            $coursebase = $COURSE->shortname;
-            break;
-
-        case 2:
-            $coursebase = $COURSE->idnumber;
-            break;
-    }
-
-    if ($blockinstance->config->coursegroupnamefilter) {
-        preg_match('/'.$blockinstance->config->coursegroupnamefilter.'/', $coursebase, $matches);
-        if (isset($matches[1])) {
-            $groupname = $matches[1];
-        } else {
-            $groupname = $matches[0];
-        }
-    } else {
-        $groupname = $coursebase;
-    }
-} else {
-    $groupname = $blockinstance->config->coursegroupname;
-}
-
-$coursegroup = $DB->get_record('groups', array('name' => $groupname, 'courseid' => $COURSE->id));
-
-if (!$coursegroup) {
-    if ($blockinstance->config->createcoursegroup) {
-        // Create the group and add all enrolled users in (only direct roles).
-        $coursegroup->courseid = $COURSE->id;
-        $coursegroup->name = $groupname;
-        $coursegroup->timecreated = time();
-        $coursegroup->modified = 0;
-        $coursegroup->id = $DB->insert_record('groups', $coursegroup);
-        $notify = get_string('coursegroupcreated', 'block_course_ascendants');
-    }
-}
-
-// If finally group exists or come to exist, sync members.
-
-// TODO : integrate new difference of enrolled and assigned users...
-
-if ($coursegroup) {
-    // Get all users with direct assignment.
-    $context = context_course::instance($COURSE->id);
-    $select = " contextid = ? ";
-    $fields = 'DISTINCT userid,userid';
-    if ($directassignments  = $DB->get_records_select('role_assignments', $select, array($context->id), 'id', $fields)) {
-        foreach ($directassignments as $assign) {
-            // Add all missing members.
-            if (!$DB->record_exists('groups_members', array('groupid' => $coursegroup->id, 'userid' => $assign->userid))) {
-                $groupmember = new StdClass;
-                $groupmember->groupid = $coursegroup->id;
-                $groupmember->userid = $assign->userid;
-                $groupmember->timeadded = time();
-                $DB->insert_record('groups_members', $groupmember);
-            }
-        }
-    }
 }
 
 // Get data.
@@ -140,7 +69,9 @@ $url = new moodle_url('/blocks/course_ascendants/assign.php', ['course' => $cour
 
 $categories = [];
 if (empty($blockinstance->config->coursescopestartcategory)) {
-    $blockinstance->config->coursescopestartcategory = 0;
+    $firstcats = $DB->get_records('course_categories', ['parent' => 0], 'sortorder', '*', 0, 1);
+    $firstcat = array_shift($firstcats);
+    $blockinstance->config->coursescopestartcategory = $firstcat->id;
 }
 $blockinstance->read_category_tree($blockinstance->config->coursescopestartcategory, $categories, true, true);
 
@@ -184,9 +115,13 @@ if (!empty($categories)) {
         if (!empty($cat->courses)) {
             foreach ($cat->courses as $cid => $course) {
                 $key = 'c'.$cid;
+                $lockkey = 'l'.$cid;
+                $cmlockkey = 'lockcm'.$cid;
                 if ($course->isbound) {
                     $formdata->$key = 1;
                 }
+                $formdata->$lockkey = $course->locktype;
+                $formdata->$cmlockkey = ($course->lockcmid) ? $course->lockcmid : '';
             }
         }
     }
