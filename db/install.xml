@@ -18,7 +18,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="ix_master_course_block" UNIQUE="true" FIELDS="courseid" COMMENT="Index on master course"/>
+        <INDEX NAME="ix_master_course_block" UNIQUE="false" FIELDS="courseid" COMMENT="Index on master course"/>
         <INDEX NAME="ix_unique_course_block" UNIQUE="true" FIELDS="blockid, metaid" COMMENT="Unique assign of meta course in an instance"/>
       </INDEXES>
     </TABLE>
