@@ -86,11 +86,15 @@ class assign_controller {
                     $metaid = str_replace('c', '', $cid);
                     $metastate = $dataarr[$cid];
 
-                    // inverts meaning of $metiad/courseid for enrol as we enrol in the meta course.
+                    // inverts meaning of $metaid/courseid for enrol as we enrol in the meta course.
                     $params = array('enrol' => 'meta', 'customint1' => $this->data->courseid, 'courseid' => $metaid);
                     if ($enrol = $DB->get_record('enrol', $params)) {
-                        // If meta enrolled, disable enrolment and strip course off the learning plan.
-                        $enrol->status = !$dataarr[$cid];
+                        // If meta enrolled, disable enrolment and strip course off the learning plan AND no other bindings in the course.
+
+                        if (!$this->has_other_binding_in_course($metaid)) {
+                            $enrol->status = !$dataarr[$cid];
+                        }
+
                         $enrol->customint1 = $this->data->courseid;
                         if (block_course_ascendants_supports_feature('group/propagate')) {
                             if ($this->blockinstance->config->createcoursegroup == 1) {
@@ -220,5 +224,26 @@ class assign_controller {
 
             return new moodle_url('/course/view.php', ['id' => $this->data->courseid]);
         }
+    }
+
+    protected function has_other_binding_in_course($metaid) {
+        global $DB, $COURSE;
+
+        // Get all other course_ascendant blocks in same course context that are NOT me.
+        $select = ' parentcontextid = :parentcontextid AND id <> :myid AND blockname = \'course_ascendants\' ';
+        $params = ['myid' =>  $this->blockinstance->instance->id, 'parentcontextid' => $this->blockinstance->instance->parentcontextid];
+        $otherblocks = $DB->get_records_select('block_instances', $select, $params);
+
+        if (!$otherblocks) {
+            return false;
+        }
+
+        // See if any positive binding of this metaid in other blocks;
+        list($insql, $inparams) = $DB->get_in_or_equal(array_keys($otherblocks), SQL_PARAMS_NAMED);
+        $select = ' courseid = :courseid AND metaid = :metaid AND blockid '.$insql;
+        $inparams['courseid'] = $COURSE->id;
+        $inparams['metaid'] = $metaid;
+        $recordexists = $DB->record_exists_select('block_course_ascendants', $select, $inparams);
+        return $recordexists;
     }
 }
