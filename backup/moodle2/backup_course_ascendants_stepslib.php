@@ -35,7 +35,7 @@ class backup_course_ascendants_block_structure_step extends backup_block_structu
         global $DB;
 
         // Define each element separated.
-        $courseascendants = new backup_nested_element('course_ascendants', array('id'), array(
+        $courseascendants = new backup_nested_element('courseascendants', array('id'), array(
             'courseid', 'blockid', 'metaid', 'locktype', 'lockcmid', 'sortorder'
         ));
 
