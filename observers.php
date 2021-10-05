@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot.'/group/lib.php');
 
 if (!function_exists('debug_trace')) {
-    function debug_trace($message, $label = '') {
+    function debug_trace($msg, $tracelevel = 0, $label = '', $backtracelevel = 1) {
         assert(1);
     }
 }
@@ -37,7 +37,6 @@ if (!function_exists('debug_trace')) {
 class block_course_ascendants_observer {
 
     /**
-     * This will purge the recycling register from this course entry.
      * Note : group propagation may be activated Before en meta enrol method has propagated the 
      * enrolment. But should take no much time to fix.
      * @param object $event
@@ -46,7 +45,7 @@ class block_course_ascendants_observer {
         global $DB;
 
         // Am i in a course_ascendants enabled course.
-        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->groupid]);
+        $courseid = $DB->get_field('groups', 'courseid', ['id' => $event->objectid]);
         $coursecontext = context_course::instance($courseid);
         $blockinstances = $DB->get_records('block_instances', ['blockname' => 'course_ascendants', 'parentcontextid' => $coursecontext->id]);
 
@@ -54,7 +53,7 @@ class block_course_ascendants_observer {
             return;
         }
 
-        $group = $DB->get_record('groups', ['groupid' => $event->groupid]);
+        $group = $DB->get_record('groups', ['groupid' => $event->objectid]);
 
         foreach ($blockinstances as $bi) {
             // Is the course_ascendants enabled for group propagation.
@@ -136,5 +135,18 @@ class block_course_ascendants_observer {
                 }
             }
         }
+    }
+
+    public static function on_course_delete(\core\event\course_deleted $event) {
+        global $DB;
+
+        // Just remove course_ascendants block data. Enrol methods are processed by core observers.
+        // When a course is removed that is a meta submodule, its enrol methods will be destroyed and
+        // course_ascendants master courses should be unlinked.
+        $DB->delete_records('block_course_ascendants', ['metaid' => $event->objectid]);
+
+        // Just remove course_ascendants block data. Enrol methods are processed by core observers.
+        // When a master course is deleted, then all meta submodules will be stripped off. 
+        $DB->delete_records('block_course_ascendants', ['courseid' => $event->objectid]);
     }
 }
