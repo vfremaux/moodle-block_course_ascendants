@@ -42,8 +42,26 @@ class assign_controller {
 
     protected $blockinstance;
 
+    protected $data;
+
+    protected $received = false;
+
     public function receive($cmd, $data, $mform = false) {
         global $DB;
+
+        if ($cmd == 'delegatedassign') {
+            $this->data = $data;
+            if (empty($this->data->courseid)) {
+                throw new moodle_exception("Course ascendant delegated assign needs a courseid in data");
+            }
+            if (empty($this->data->id)) {
+                throw new moodle_exception("Course ascendant delegated assign needs a (block) id in data");
+            }
+            if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
+                print_error('Invalidblockid');
+            }
+            $this->blockinstance = block_instance('course_ascendants', $instance);
+        }
 
         if ($cmd == 'assign') {
             $this->data = $data;
@@ -65,7 +83,7 @@ class assign_controller {
             throw new coding_exception('Data must be received in controller before operation. this is a programming error.');
         }
 
-        if ($cmd == 'assign') {
+        if ($cmd == 'assign' || $cmd == 'delegatedassign') {
 
             // Get all activated metas.
             $dataarr = (array)$this->data;
