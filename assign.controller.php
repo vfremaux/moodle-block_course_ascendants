@@ -28,6 +28,7 @@ use StdClass;
 use coding_exception;
 use enrol_meta_plugin;
 use moodle_url;
+use cache_helper;
 use block_course_ascendants_pro;
 
 defined('MOODLE_INTERNAL') || die();
@@ -41,8 +42,26 @@ class assign_controller {
 
     protected $blockinstance;
 
+    protected $data;
+
+    protected $received = false;
+
     public function receive($cmd, $data, $mform = false) {
         global $DB;
+
+        if ($cmd == 'delegatedassign') {
+            $this->data = $data;
+            if (empty($this->data->courseid)) {
+                throw new moodle_exception("Course ascendant delegated assign needs a courseid in data");
+            }
+            if (empty($this->data->id)) {
+                throw new moodle_exception("Course ascendant delegated assign needs a (block) id in data");
+            }
+            if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
+                print_error('Invalidblockid');
+            }
+            $this->blockinstance = block_instance('course_ascendants', $instance);
+        }
 
         if ($cmd == 'assign') {
             $this->data = $data;
@@ -64,7 +83,7 @@ class assign_controller {
             throw new coding_exception('Data must be received in controller before operation. this is a programming error.');
         }
 
-        if ($cmd == 'assign') {
+        if ($cmd == 'assign' || $cmd == 'delegatedassign') {
 
             // Get all activated metas.
             $dataarr = (array)$this->data;
@@ -85,14 +104,18 @@ class assign_controller {
                     $metaid = str_replace('c', '', $cid);
                     $metastate = $dataarr[$cid];
 
-                    // inverts meaning of $metiad/courseid for enrol as we enrol in the meta course.
+                    // inverts meaning of $metaid/courseid for enrol as we enrol in the meta course.
                     $params = array('enrol' => 'meta', 'customint1' => $this->data->courseid, 'courseid' => $metaid);
                     if ($enrol = $DB->get_record('enrol', $params)) {
-                        // If meta enrolled, disable enrolment and strip course off the learning plan.
-                        $enrol->status = !$dataarr[$cid];
+                        // If meta enrolled, disable enrolment and strip course off the learning plan AND no other bindings in the course.
+
+                        if (!$this->has_other_binding_in_course($metaid)) {
+                            $enrol->status = !$dataarr[$cid];
+                        }
+
                         $enrol->customint1 = $this->data->courseid;
                         if (block_course_ascendants_supports_feature('group/propagate')) {
-                            if ($this->blockinstance->config->createcoursegroup) {
+                            if ($this->blockinstance->config->createcoursegroup == 1) {
                                 include_once($CFG->dirroot.'/blocks/course_ascendants/pro/lib.php');
                                 $proinstance = new block_course_ascendants_pro($this->blockinstance);
                                 $groupid = $proinstance->check_and_create_course_group($this->data->courseid, $metaid);
@@ -134,7 +157,7 @@ class assign_controller {
                             $metacourse = $DB->get_record('course', ['id' => $metaid]);
                             $params = ['customint1' => $this->data->courseid];
                             if (block_course_ascendants_supports_feature('group/propagate')) {
-                                if ($this->blockinstance->config->createcoursegroup) {
+                                if ($this->blockinstance->config->createcoursegroup == 1) {
                                     include_once($CFG->dirroot.'/blocks/course_ascendants/pro/lib.php');
                                     $proinstance = new block_course_ascendants_pro($this->blockinstance);
                                     $groupid = $proinstance->check_and_create_course_group($this->data->courseid, $metaid);
@@ -174,26 +197,31 @@ class assign_controller {
                 }
             }
 
-            // Now we sync our course group into opened metacourses.
+            // Now we sync our cursus course groups into opened metacourses.
             // If told to, push the course group whereever it is missing, based on groupname.
-            if (!empty($data->pushnewgroups)) {
+            if ($this->blockinstance->config->createcoursegroup == 2) {
+                debug_trace("Pushing all cursus groups to metas.");
+                $localgroups = $DB->get_records('groups', ['courseid' => $this->data->courseid]);
+                debug_trace("Local groups to push: ".count($localgroups).".");
                 foreach ($allmetas as $m) {
-                    if (!$DB->record_exists('groups', array('courseid' => $m, 'name' => $coursegroup->name))) {
-                        $metagroup->courseid = $m;
-                        $metagroup->name = $groupname;
-                        $metagroup->timecreated = time();
-                        $metagroup->modified = 0;
-                        $metagroup->id = $DB->insert_record('groups', $metagroup);
-                    }
+                    foreach ($localgroups as $g) {
+                        debug_trace("Checking group: course $m name : $g->name ");
+                        if (!$DB->record_exists('groups', ['courseid' => $m, 'name' => $g->name])) {
+                            $metagroup->courseid = $m;
+                            $metagroup->name = $g->name;
+                            $metagroup->timecreated = time();
+                            $metagroup->modified = 0;
+                            $metagroup->id = $DB->insert_record('groups', $metagroup);
+                        } else {
+                            $metagroup = $DB->get_record('groups', ['courseid' => $m, 'name' => $g->name]);
+                        }
 
-                    // Now resync group anyway.
-                    if ($members = groups_get_members($coursegroup->id)) {
-                        $context = context_course::instance($m);
-                        foreach ($members as $u) {
-                            // We need check if candidate usr to transfer has real role (was synced bymetacourse).
-                            $select = " contextid = ? AND userid = ? AND hidden = 0 ";
-                            if ($DB->get_records_select('role_assignments', $select, array($context->id, $u->id))) {
-                                // Just create if not registered there.
+                        // Now resync group members anyway on this group. If meta propagation has not been performed, it will be performed
+                        // soon by cron.
+                        debug_trace("Syncing group members on group {$metagroup->id}. ");
+                        if ($members = groups_get_members($g->id)) {
+                            debug_trace("Syncing ".count($members)." group members. ");
+                            foreach ($members as $u) {
                                 $params = array('groupid' => $metagroup->id, 'userid' => $u->id);
                                 if (!$DB->record_exists('groups_members', $params)) {
                                     $groupmember = new StdClass;
@@ -205,9 +233,35 @@ class assign_controller {
                             }
                         }
                     }
+
+                    // Invalidate the grouping cache for the meta course
+                    cache_helper::invalidate_by_definition('core', 'groupdata', array(), array($m));
+
                 }
             }
+
             return new moodle_url('/course/view.php', ['id' => $this->data->courseid]);
         }
+    }
+
+    protected function has_other_binding_in_course($metaid) {
+        global $DB, $COURSE;
+
+        // Get all other course_ascendant blocks in same course context that are NOT me.
+        $select = ' parentcontextid = :parentcontextid AND id <> :myid AND blockname = \'course_ascendants\' ';
+        $params = ['myid' =>  $this->blockinstance->instance->id, 'parentcontextid' => $this->blockinstance->instance->parentcontextid];
+        $otherblocks = $DB->get_records_select('block_instances', $select, $params);
+
+        if (!$otherblocks) {
+            return false;
+        }
+
+        // See if any positive binding of this metaid in other blocks;
+        list($insql, $inparams) = $DB->get_in_or_equal(array_keys($otherblocks), SQL_PARAMS_NAMED);
+        $select = ' courseid = :courseid AND metaid = :metaid AND blockid '.$insql;
+        $inparams['courseid'] = $COURSE->id;
+        $inparams['metaid'] = $metaid;
+        $recordexists = $DB->record_exists_select('block_course_ascendants', $select, $inparams);
+        return $recordexists;
     }
 }
