@@ -22,6 +22,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/blocks/course_ascendants/assign.controller.php');
+
 /**
  * Define all the restore steps that wll be used by the restore_page_module_block_task
  */
@@ -29,20 +31,14 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Define the complete course_ascendants structure for restore
  */
-class restore_course_ascendants_block_structure_step extends restore_structure_step {
+class restore_course_ascendants_block_structure_step extends restore_block_instance_structure_step {
 
     protected function define_structure() {
 
         $paths = array();
-
-        $paths[] = new restore_path_element('block', '/block', true);
-        $paths[] = new restore_path_element('access', '/block/course_ascendants');
+        $paths[] = new restore_path_element('course_ascendants', '/block/courseascendants');
 
         return $paths;
-    }
-
-    public function process_block($data) {
-        // Nothing to do yet here.
     }
 
     /**
@@ -62,6 +58,14 @@ class restore_course_ascendants_block_structure_step extends restore_structure_s
             $data->lockcmid = $lockcmid;
         }
 
-        $DB->insert_record('block_course_ascendants', $data);
+        // Add an instance of meta enrol in the target course using course_ascendants assign controller
+        $controller = new \block_course_ascendants\assign_controller();
+        $cdata = new Stdclass;
+        $cdata->courseid = $data->courseid;
+        $cdata->id = $data->blockid;
+        $key = 'c'.$data->metaid;
+        $cdata->$key = 1;
+        $controller->receive('delegatedassign', $cdata);
+        $controller->process('delegatedassign');
     }
 }

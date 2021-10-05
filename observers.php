@@ -37,7 +37,6 @@ if (!function_exists('debug_trace')) {
 class block_course_ascendants_observer {
 
     /**
-     * This will purge the recycling register from this course entry.
      * Note : group propagation may be activated Before en meta enrol method has propagated the 
      * enrolment. But should take no much time to fix.
      * @param object $event
@@ -136,5 +135,18 @@ class block_course_ascendants_observer {
                 }
             }
         }
+    }
+
+    public static function on_course_delete(\core\event\course_deleted $event) {
+        global $DB;
+
+        // Just remove course_ascendants block data. Enrol methods are processed by core observers.
+        // When a course is removed that is a meta submodule, its enrol methods will be destroyed and
+        // course_ascendants master courses should be unlinked.
+        $DB->delete_records('block_course_ascendants', ['metaid' => $event->objectid]);
+
+        // Just remove course_ascendants block data. Enrol methods are processed by core observers.
+        // When a master course is deleted, then all meta submodules will be stripped off. 
+        $DB->delete_records('block_course_ascendants', ['courseid' => $event->objectid]);
     }
 }
