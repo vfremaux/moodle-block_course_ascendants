@@ -15,20 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Compatibility functions
- * @package    local_my
- * @category   local
- * @author     Valery Fremaux <valery.fremaux@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   local_courseindex
+ * @category  local
+ * @copyright 2006 Valery Fremaux
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace block_course_ascendants;
 
 defined('MOODLE_INTERNAL') || die();
 
-class compat {
-
-    public static function get_course_list($course) {
-        return new \core_course_list_element($course);
-    }
-
-}
+$definitions = array(
+    'pro' => array(
+        'mode' => cache_store::MODE_APPLICATION
+    )
+);

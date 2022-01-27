@@ -39,7 +39,8 @@ if ($hassiteconfig) {
 
     if (block_course_ascendants_supports_feature('emulate/community') == 'pro') {
         include_once($CFG->dirroot.'/blocks/course_ascendants/pro/prolib.php');
-        \block_course_ascendants\pro_manager::add_settings($ADMIN, $settings);
+        $promanager = block_course_ascendants\pro_manager::instance();
+        $promanager->add_settings($ADMIN, $settings);
     } else {
         $label = get_string('plugindist', 'block_course_ascendants');
         $desc = get_string('plugindist_desc', 'block_course_ascendants');

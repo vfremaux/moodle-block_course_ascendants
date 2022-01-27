@@ -59,13 +59,17 @@ class restore_course_ascendants_block_structure_step extends restore_block_insta
         }
 
         // Add an instance of meta enrol in the target course using course_ascendants assign controller
-        $controller = new \block_course_ascendants\assign_controller();
-        $cdata = new Stdclass;
-        $cdata->courseid = $data->courseid;
-        $cdata->id = $data->blockid;
-        $key = 'c'.$data->metaid;
-        $cdata->$key = 1;
-        $controller->receive('delegatedassign', $cdata);
-        $controller->process('delegatedassign');
+        // Meta target may not exist if backup comes from another moodle.
+        // TODO Detect backup is exogeneous and do not process rebinding even if some course exists witht his id.
+        if ($DB->record_exists('course', ['id' => $data->metaid])) {
+            $controller = new \block_course_ascendants\assign_controller();
+            $cdata = new Stdclass;
+            $cdata->courseid = $data->courseid;
+            $cdata->id = $data->blockid;
+            $key = 'c'.$data->metaid;
+            $cdata->$key = 1;
+            $controller->receive('delegatedassign', $cdata);
+            $controller->process('delegatedassign');
+        }
     }
 }
