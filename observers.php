@@ -113,7 +113,7 @@ class block_course_ascendants_observer {
             // Is the course_ascendants enabled for group propagation.
             $config = unserialize(base64_decode($bi->configdata));
 
-            if ($config->createcoursegroup != 2) {
+            if (empty($config->createcoursegroup) && $config->createcoursegroup != 2) {
                 debug_trace("Course ascendants {$bi->id} not configured for propagation ", TRACE_DEBUG_FINE);
                 continue;
             }

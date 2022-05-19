@@ -57,6 +57,7 @@ class assign_controller {
             if (empty($this->data->id)) {
                 throw new moodle_exception("Course ascendant delegated assign needs a (block) id in data");
             }
+            $this->data->pageid = optional_param('page', 0, PARAM_INT);
             if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
                 print_error('Invalidblockid');
             }
@@ -66,6 +67,7 @@ class assign_controller {
         if ($cmd == 'assign') {
             $this->data = $data;
             $this->data->courseid = required_param('course', PARAM_INT);
+            $this->data->pageid = optional_param('page', 0, PARAM_INT);
             $this->data->id = required_param('id', PARAM_INT); // blockid.
             if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
                 print_error('Invalidblockid');
@@ -240,7 +242,11 @@ class assign_controller {
                 }
             }
 
-            return new moodle_url('/course/view.php', ['id' => $this->data->courseid]);
+            $params = ['id' => $this->data->courseid];
+            if ($this->data->pageid > 0) {
+                $params['page'] = $this->data->pageid;
+            }
+            return new moodle_url('/course/view.php', $params);
         }
     }
 

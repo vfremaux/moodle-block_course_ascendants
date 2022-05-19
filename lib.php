@@ -41,7 +41,7 @@ function block_course_ascendants_supports_feature($feature = null, $getsupported
          */
         $supports = [
             'pro' => [
-                'display' => ['list', 'tiles'],
+                'display' => ['list', 'tiles', 'customtitle'],
                 'group' => ['propagate'],
             ],
             'community' => [

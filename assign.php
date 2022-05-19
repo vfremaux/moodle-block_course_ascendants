@@ -29,6 +29,7 @@ require('../../config.php');
 require_once($CFG->dirroot.'/blocks/course_ascendants/assign_form.php');
 
 $courseid = required_param('course', PARAM_INT); // The course id.
+$pageid = optional_param('page', 0, PARAM_INT); // The page id, if in page course format.
 
 if (!$course = $DB->get_record('course', array('id' => $courseid))) {
     print_error('invalidcourseid');
@@ -46,6 +47,9 @@ $blockinstance = block_instance('course_ascendants', $instance);
 $context = context_block::instance($blockinstance->instance->id);
 
 $params = array('course' => $courseid, 'id' => $id);
+if ($pageid > 0) {
+    $params['page'] = $pageid;
+}
 $url = new moodle_url('/blocks/course_ascendants/assign.php', $params);
 $PAGE->set_url($url);
 
