@@ -36,9 +36,11 @@ class block_course_ascendants_edit_form extends block_edit_form {
 
         $mform->addElement('header', 'configheader', get_string('blocksettings', 'block'));
 
-        $mform->addElement('text', 'config_title', get_string('alttitle', 'block_course_ascendants'));
-        $mform->setType('config_title', PARAM_MULTILANG);
-        $mform->addHelpButton('config_title', 'alttitle', 'block_course_ascendants');
+        if (block_course_ascendants_supports_feature('display/customtitle')) {
+            $mform->addElement('text', 'config_title', get_string('alttitle', 'block_course_ascendants'));
+            $mform->setType('config_title', PARAM_MULTILANG);
+            $mform->addHelpButton('config_title', 'alttitle', 'block_course_ascendants');
+        }
 
         $mform->addElement('advcheckbox', 'config_showcategories', get_string('showcategories', 'block_course_ascendants'));
 

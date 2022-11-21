@@ -18,23 +18,14 @@ cache:
     - $HOME/.npm
 
 php:
- - 7.2
+ - 7.3
 
 env:
-<<<<<<< HEAD
-  global:
-    - MOODLE_BRANCH=MOODLE_35_STABLE
-
-  matrix:
-    - DB=mysqli
-    - DB=pgsql
-=======
  global:
   - MOODLE_BRANCH=MOODLE_39_STABLE
  matrix:
   - DB=pgsql
   - DB=mariadb
->>>>>>> MOODLE_39_STABLE
 
 before_install:
   - phpenv config-rm xdebug.ini

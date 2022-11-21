@@ -59,7 +59,7 @@ class block_course_ascendants extends block_base {
     }
 
     public function get_content() {
-        global $COURSE, $PAGE, $USER, $DB;
+        global $COURSE, $PAGE, $USER, $DB, $CFG;
 
         if ($this->content !== null) {
             return $this->content;
@@ -188,6 +188,12 @@ class block_course_ascendants extends block_base {
         if (has_capability('block/course_ascendants:configure', $coursecontext)) {
             $manageascendantsstr = get_string('manageascendants', 'block_course_ascendants');
             $params = array('course' => $COURSE->id, 'id' => $this->instance->id, 'sesskey' => sesskey());
+            if ($COURSE->format == 'page') {
+                include_once($CFG->dirroot.'/course/format/page/classes/page.class.php');
+                $page = format\page\course_page::get_current_page();
+                $params['page'] = $page->id;
+            }
+
             $linkurl = new moodle_url('/blocks/course_ascendants/assign.php', $params);
             $this->content->footer = '<a href="'.$linkurl.'">'.$manageascendantsstr.'</a>';
         }

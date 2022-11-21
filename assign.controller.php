@@ -26,6 +26,7 @@ namespace block_course_ascendants;
 
 use StdClass;
 use coding_exception;
+use moodle_exception;
 use enrol_meta_plugin;
 use moodle_url;
 use cache_helper;
@@ -57,6 +58,7 @@ class assign_controller {
             if (empty($this->data->id)) {
                 throw new moodle_exception("Course ascendant delegated assign needs a (block) id in data");
             }
+            $this->data->pageid = optional_param('page', 0, PARAM_INT);
             if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
                 print_error('Invalidblockid');
             }
@@ -66,6 +68,7 @@ class assign_controller {
         if ($cmd == 'assign') {
             $this->data = $data;
             $this->data->courseid = required_param('course', PARAM_INT);
+            $this->data->pageid = optional_param('page', 0, PARAM_INT);
             $this->data->id = required_param('id', PARAM_INT); // blockid.
             if (!$instance = $DB->get_record('block_instances', array('id' => $this->data->id))) {
                 print_error('Invalidblockid');
@@ -207,6 +210,7 @@ class assign_controller {
                     foreach ($localgroups as $g) {
                         debug_trace("Checking group: course $m name : $g->name ");
                         if (!$DB->record_exists('groups', ['courseid' => $m, 'name' => $g->name])) {
+                            $metagroup = new Stdclass;
                             $metagroup->courseid = $m;
                             $metagroup->name = $g->name;
                             $metagroup->timecreated = time();
@@ -240,7 +244,11 @@ class assign_controller {
                 }
             }
 
-            return new moodle_url('/course/view.php', ['id' => $this->data->courseid]);
+            $params = ['id' => $this->data->courseid];
+            if ($this->data->pageid > 0) {
+                $params['page'] = $this->data->pageid;
+            }
+            return new moodle_url('/course/view.php', $params);
         }
     }
 
