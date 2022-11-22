@@ -26,7 +26,6 @@ namespace block_course_ascendants;
 
 use StdClass;
 use coding_exception;
-use moodle_exception;
 use enrol_meta_plugin;
 use moodle_url;
 use cache_helper;
@@ -210,7 +209,6 @@ class assign_controller {
                     foreach ($localgroups as $g) {
                         debug_trace("Checking group: course $m name : $g->name ");
                         if (!$DB->record_exists('groups', ['courseid' => $m, 'name' => $g->name])) {
-                            $metagroup = new Stdclass;
                             $metagroup->courseid = $m;
                             $metagroup->name = $g->name;
                             $metagroup->timecreated = time();

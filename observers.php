@@ -53,7 +53,7 @@ class block_course_ascendants_observer {
             return;
         }
 
-        $group = $DB->get_record('groups', ['id' => $event->objectid]);
+        $group = $DB->get_record('groups', ['groupid' => $event->objectid]);
 
         foreach ($blockinstances as $bi) {
             // Is the course_ascendants enabled for group propagation.
