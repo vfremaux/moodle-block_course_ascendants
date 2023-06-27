@@ -26,12 +26,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2021102101;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022041200;        // Requires this Moodle version.
+$plugin->version   = 2021102105;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2022041900;        // Requires this Moodle version.
 $plugin->component = 'block_course_ascendants'; // Full name of the plugin (used for diagnostics).
-$plugin->release = '4.0.0 (Build 2021102101)';
-$plugin->supported = [40,40];
+$plugin->release = '4.1.0 (Build 2021102105)';
+$plugin->supported = [401, 402];
 $plugin->maturity   = MATURITY_STABLE;
 
 // Non moodle attributes.
-$plugin->codeincrement = '4.0.0006';
+$plugin->codeincrement = '4.1.0006';
+$plugin->privacy = 'dualrelease';
