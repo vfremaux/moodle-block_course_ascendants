@@ -144,7 +144,8 @@ class block_course_ascendants extends block_base {
                         $this->content->text .= '<div class="category"><b>'.$filteredprevcat.'</b></div>';
                     }
                     if (!empty($cat->courses)) {
-                        if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles') {
+                        $supports = block_course_ascendants_supports_feature('display/tiles');
+                        if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles' && $supports) {
                             // @see Needs pro renderer. 
                             $this->content->text .= $renderer->coursegrid($cat->courses, $this, $mincourse, $maxcourse);
                         } else {
@@ -171,7 +172,8 @@ class block_course_ascendants extends block_base {
 
                 $this->content->text .= '<div class="courses">';
                 if (!empty($flatcourses)) {
-                    if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles') {
+                    $supports = block_course_ascendants_supports_feature('display/tiles');
+                    if (!empty($this->config->coursedisplaymode) && $this->config->coursedisplaymode == 'tiles' && $supports) {
                         // @see Needs pro renderer. 
                         $this->content->text .= $renderer->coursegrid($flatcourses, $this, $mincourse, $maxcourse);
                     } else {
